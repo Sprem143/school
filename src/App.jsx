@@ -1,35 +1,32 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
-
-function App() {
-  const [count, setCount] = useState(0)
+import { Route,BrowserRouter, Routes } from 'react-router-dom';
+import Header from './pages/component/Header';
+import StdSignup from './pages/StdSignup';
+import DirectorProfile from './pages/Director/DirectorProfile';
+import TeacherLogin from './pages/Teacher/TeacherLogin';
+import TeacherProfile from './pages/Teacher/TeacherProfile';
+import DirectorLogin from './pages/Director/DirectorLogin';
+import StudentRegistration from './pages/student/StudentRegistration';
+import TeacherSignup from './pages/Teacher/TeacherSignup';
+export default function App() {
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+     <BrowserRouter>
+     <Routes>
+      <Route path="/" element={<Header />}>
+        <Route path='/student/signup' element={<StdSignup/>} />
+        <Route path='/director/login' element={<DirectorLogin/>} />
+        <Route path='/director/profile' element={<DirectorProfile/>} />
+        <Route path='/teacher/profile' element={<TeacherProfile/>} />
+        <Route path='/teacher/login' element={<TeacherLogin/>} />
+        <Route path='/teacher/signup' element={<TeacherSignup/>} />
+        <Route path='/student/registration' element={<StudentRegistration/>} /> 
+      </Route>
+     </Routes>
+     </BrowserRouter>
     </>
   )
 }
 
-export default App

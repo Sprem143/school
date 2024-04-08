@@ -6,12 +6,19 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "start": "npm run dev",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
+    "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
+    "js-cookie": "^3.0.5",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-bootstrap": "^2.10.2",
+    "react-cookie": "^7.1.4",
+    "react-dom": "^18.2.0",
+    "sass": "^1.72.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.64",
@@ -21,6 +28,7 @@
     "eslint-plugin-react": "^7.34.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "react-router-dom": "^6.22.3",
     "vite": "^5.1.6"
   }
 }

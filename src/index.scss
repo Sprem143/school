@@ -1,0 +1,34 @@
+@mixin white{
+  color: white;
+}
+@mixin df{
+  display: flex;
+}
+.dfdr{
+  @include df;
+  flex-direction: row;
+}
+.dfdc{
+@include df;
+flex-direction: column;
+}
+.jc{
+  @include df;
+  justify-content: center;
+}
+.ac{
+  @include df;
+  align-items: center;
+}
+.jcac{
+  @include df;
+  justify-content: center;
+  align-items: center;
+}
+.sb{
+@include df;
+justify-content: space-between;
+}
+.bold{
+  font-weight: bold;
+}
