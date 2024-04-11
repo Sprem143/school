@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import { Route,BrowserRouter, Routes } from 'react-router-dom';
 import Header from './pages/component/Header';
+import Home from './pages/Home';
 import StdSignup from './pages/StdSignup';
 import DirectorProfile from './pages/Director/DirectorProfile';
 import TeacherLogin from './pages/Teacher/TeacherLogin';
@@ -16,6 +17,7 @@ export default function App() {
      <BrowserRouter>
      <Routes>
       <Route path="/" element={<Header />}>
+        <Route index element={<Home/>}></Route>
         <Route path='/student/signup' element={<StdSignup/>} />
         <Route path='/director/login' element={<DirectorLogin/>} />
         <Route path='/director/profile' element={<DirectorProfile/>} />
