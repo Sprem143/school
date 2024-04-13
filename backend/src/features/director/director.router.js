@@ -6,6 +6,7 @@ router.post('/signin', directorController.signin);
 router.post('/signup', directorController.signup);
 router.get('/logout', directorController.logout);
 router.get('/getallstudents', directorController.getallstudents);
+router.get('/getallteachers', directorController.getallteachers);
 router.post('/getonestudent', directorController.getonestudent);
 router.post('/addstudent', directorController.addstudent);
 router.post('/addteacher', directorController.addteacher);

@@ -13,11 +13,14 @@
   "dependencies": {
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
+    "formik": "^2.4.5",
     "js-cookie": "^3.0.5",
     "react": "^18.2.0",
     "react-bootstrap": "^2.10.2",
     "react-cookie": "^7.1.4",
     "react-dom": "^18.2.0",
+    "react-form-validator-core": "^1.1.2",
+    "react-multi-carousel": "^2.8.5",
     "sass": "^1.72.0"
   },
   "devDependencies": {

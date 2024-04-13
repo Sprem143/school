@@ -6,9 +6,8 @@ export default function StudentRegistration(){
     const [password, setPassword] = useState("");
       
         const handleRegistration= async()=>{
-
            if(Cookies.get('director') || Cookies.get('teacher')){
-            let newStudent= await fetch('http://localhost:8000/director/addstudent',{
+            let newStudent= await fetch('http://localhost:8050/director/addstudent',{
                 method:"POST",
                 headers:{'Content-type':'application/json'},
                 body:JSON.stringify({username,email,password})

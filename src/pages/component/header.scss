@@ -5,10 +5,18 @@
     font-weight: bold;
     text-decoration: underline;
 }
+.menu{
+    visibility: hidden;
+    position: fixed;
+}
 //  for 768px width---------
 @media screen and (max-width:768px) {
     .hd{
         visibility: hidden;
         position: fixed;
+    }
+    .menu{
+        visibility: visible;
+        position: relative;
     }
 }

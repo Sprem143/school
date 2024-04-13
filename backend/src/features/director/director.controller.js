@@ -53,11 +53,14 @@ exports.addstudent=async(req,res)=>{
 // --------add teacher------------
 exports.addteacher=async(req,res)=>{
     try{
+        console.log(req.body)
+        // const{username,fatherName,email,mobile,gender,qualification,subject,salary,address,password,creator}=req.body;
          const newTeacher = new Teacher(req.body);
          await newTeacher.save();
          res.status(200).json({message:"Teacher added successfully"})
     }catch(err){
-        res.status(201).json({message:"Error while adding teacher"})
+        res.status(201).json({message:"Error while adding teacher"});
+        console.log(err)
     }
 }
 // ----- log out ------------
@@ -82,6 +85,15 @@ exports.getallstudents=async(req,res)=>{
     try{
         let students=await Student.find();
        res.status(200).json(students)
+    }catch(err){
+        res.status(201).json({message:"Error while getting student list"})
+
+    }
+}
+exports.getallteachers=async(req,res)=>{
+    try{
+        let teacher=await Teacher.find();
+       res.status(200).json(teacher)
     }catch(err){
         res.status(201).json({message:"Error while getting student list"})
 

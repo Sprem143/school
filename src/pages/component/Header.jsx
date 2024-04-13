@@ -104,19 +104,19 @@ export default function Header() {
   const [cookie, setCookie] = useState();
   const c = document.cookie;
   useEffect(() => {
-      if (c.slice(0, 8) == "director") {
-          setCookie(c.slice(0, 8));
-      } else if (c.slice(0, 7) == "teacher") {
-          setCookie(c.slice(0, 7));
-      } else if (c.slice(0, 7) == "student") {
-          setCookie(c.slice(0, 7));
-      }
+    if (c.slice(0, 8) == "director") {
+      setCookie(c.slice(0, 8));
+    } else if (c.slice(0, 7) == "teacher") {
+      setCookie(c.slice(0, 7));
+    } else if (c.slice(0, 7) == "student") {
+      setCookie(c.slice(0, 7));
+    }
   })
 
   return (
     <>
       {[false].map((expand) => (
-        <Navbar key={expand} expand={expand} className="bg-dark mb-3">
+        <Navbar key={expand} expand={expand} className="bg-dark">
           <Container fluid>
             <Navbar.Brand href="#">
               <img src="/static/Prem.png" alt="" height="50" />
@@ -128,20 +128,20 @@ export default function Header() {
             <Link to="" className="text-white nav-links hd">Notice</Link>
             {/* ----log in button */}
             <DropdownButton id="dropdown-basic-button" title="Log in">
-                            <Dropdown.Item >
-                                {cookie == 'director' ? <Link to="/director/profile">Dashboard</Link> : <Link to="/director/login">Director</Link>}
-                            </Dropdown.Item>
-                            <Dropdown.Item >
-                                {cookie == 'teacher' ? <Link to="/teacher/profile">Dashboard</Link> : <Link to="/teacher/login">Teacher</Link>}
+              <Dropdown.Item >
+                {cookie == 'director' ? <Link to="/director/profile">Dashboard</Link> : <Link to="/director/login">Director</Link>}
+              </Dropdown.Item>
+              <Dropdown.Item >
+                {cookie == 'teacher' ? <Link to="/teacher/profile">Dashboard</Link> : <Link to="/teacher/login">Teacher</Link>}
 
-                            </Dropdown.Item>
-                            <Dropdown.Item >
-                                {cookie == 'student' ? <Link to="/student/profile">Profile</Link> : <Link to="/student/login">Student</Link>}
-                            </Dropdown.Item>
-                        </DropdownButton>
+              </Dropdown.Item>
+              <Dropdown.Item >
+                {cookie == 'student' ? <Link to="/student/profile">Profile</Link> : <Link to="/student/login">Student</Link>}
+              </Dropdown.Item>
+            </DropdownButton>
 
 
-            <Navbar.Toggle aria-controls={`offcanvasNavbar-expand-${expand}`} className='bg-light' />
+            <Navbar.Toggle aria-controls={`offcanvasNavbar-expand-${expand}`} className='bg-light menu' />
             <Navbar.Offcanvas
               id={`offcanvasNavbar-expand-${expand}`}
               aria-labelledby={`offcanvasNavbarLabel-expand-${expand}`}
@@ -158,15 +158,15 @@ export default function Header() {
                   <Nav.Link href="#action2">Courses</Nav.Link>
                   <Nav.Link href="#action2">Our Teachers</Nav.Link>
                   <Nav.Link href="#action2">Admission</Nav.Link>
-                  <Nav.Link href="#action2">Notice</Nav.Link>                  
+                  <Nav.Link href="#action2">Notice</Nav.Link>
                 </Nav>
-                
+
               </Offcanvas.Body>
             </Navbar.Offcanvas>
           </Container>
         </Navbar>
       ))}
-      <Outlet/>
+      <Outlet />
     </>
   );
 }

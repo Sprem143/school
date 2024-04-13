@@ -8,7 +8,7 @@ export default function TeacherLogin() {
     
     const handleLogin = async () => {
         
-        let result = await fetch("http://localhost:8000/teacher/signin", {
+        let result = await fetch("http://localhost:8050/teacher/signin", {
             method: "POST",
             body: JSON.stringify({ email, password }),
             headers: { 'Content-Type': 'application/json' }

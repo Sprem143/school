@@ -8,7 +8,7 @@ export default function DirectorLogin() {
     
     const handleLogin = async () => {
         
-        let result = await fetch("http://localhost:8000/director/signin", {
+        let result = await fetch("http://localhost:8050/director/signin", {
             method: "POST",
             body: JSON.stringify({ email, password }),
             headers: { 'Content-Type': 'application/json' }

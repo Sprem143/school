@@ -4,7 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose= require('mongoose');
 const session = require('express-session')
-const PORT = 8000;
+const PORT = 8050;
 app.use(cors());
 const connectDb = require('./config/mongoose')
 connectDb();
