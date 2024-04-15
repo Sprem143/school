@@ -39,6 +39,45 @@
     background-image: linear-gradient(rgb(167, 28, 189), rgb(171, 181, 133));
 
 }
+.s_l{
+    margin-left: 3vw;
+    width: 15vw;
+    padding:2px 1vw;
+    border-radius: 5px;
+}
+.st_atd{
+    width: 80%;
+}
+.pr_std{
+    border: 2px dashed rgb(255, 255, 255);
+    border-radius: 50%;
+    padding: 0.5vw;
+    position:absolute;
+    height: 35px;
+    width: 35px;
+    
+    h5{
+        position:sticky;  
+        color:white; 
+    }
+}
+@keyframes rotate {
+    0%{
+        transform: rotate(360deg);
+    }
+    
+}
+
+.brdr{
+    height: 39px;
+    width: 39px;
+    
+    padding: 3px;
+    border: 3px dashed rgb(255, 247, 91);
+    border-radius: 50%;
+    box-sizing: content-box;
+    animation: rotate 3s  infinite linear;
+}
 .teacher_img{
     border-right: 1px solid black;
 }

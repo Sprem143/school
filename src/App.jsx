@@ -3,7 +3,6 @@ import './App.css'
 import { Route,BrowserRouter, Routes } from 'react-router-dom';
 import Header from './pages/component/Header';
 import Home from './pages/Home';
-import StdSignup from './pages/StdSignup';
 import DirectorProfile from './pages/Director/DirectorProfile';
 import TeacherLogin from './pages/Teacher/TeacherLogin';
 import TeacherProfile from './pages/Teacher/TeacherProfile';
