@@ -266,7 +266,7 @@ export default function DirectorProfile() {
     }
     // -----Log out ----
     const logout = () => {
-        Cookies.remove('director');
+        Cookies.remove('Director');
         navigate('/');
     }
     return (

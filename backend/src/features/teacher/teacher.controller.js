@@ -1,6 +1,7 @@
 const Student = require('../student/student.model')
 const Teacher = require('../teacher/teacher.model')
-
+const jwt = require('jsonwebtoken');
+const secret_key = 'prem_7366';
 exports.signup = async(req,res)=>{
     try{
         const student = new Student(req.body);
@@ -16,11 +17,13 @@ exports.signin=async(req,res)=>{
     
     try{
         const teacher =await Teacher.findOne({email});
+        console.log(teacher);
         if(teacher){
-            if(password==teacher.password){
-                res.status(200).json(req.body);
-            }else{
-                res.json({message:"Incorrect password"})
+            if (password == teacher.password) {
+                const token = jwt.sign({ teacher }, secret_key, { expiresIn: "2h" })
+                res.status(200).json({ token: token });
+            } else {
+                res.status(404).json({ message: 'Incorrect password' });
             }
         }else{
             res.status(404).json({message:"Teacher not found"})

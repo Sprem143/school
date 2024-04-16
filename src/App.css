@@ -1,10 +1,4 @@
-.loginForm {
-    height: auto;
-    width: 100%;
-    border: 2px solid black;
-    display: flex;
-    justify-content: center;
-}
+
 
 .form_input {
     color: white;
@@ -109,6 +103,9 @@
 
     .about {
         flex-direction: column !important;
+    }
+    .login_field{
+        width: 90%;
     }
 
     .frm {
