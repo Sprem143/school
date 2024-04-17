@@ -47,11 +47,54 @@ export default function DirectorProfile() {
     const [showButton, setShowButton] = useState(false)
     const [attendenceClass, setac] = useState('');
     const [totalPresentStudent, settps] = useState(0);
-    const [psList,setPSList]=useState([]);
-    const[cwps,setCwps]=useState([]);
+    const [psList, setPSList] = useState([]);
+    const [cwps, setCwps] = useState([]);
+    const [aClass, setaCls] = useState('');
+    const [tpt, settpt] = useState(0);
+
+    const [notice, setNotice] = useState('');
+    const [noticeWriter, setNoticeWriter] = useState('');
+    const [addedNotice, setAddedNotice] = useState([{}]);
+    const [date, setDate] = useState('');
+
+
+    const submitNotice = async () => {
+        let d = new Date();
+        const date = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear();
+        setDate(date);
+        console.log( noticeWriter, notice, date)
+        let result = await fetch('http://localhost:8050/notice/addnotice', {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ noticeWriter, notice, date })
+        });
+        result = await result.json();
+        if(result){
+            getnotice();
+            alert("Notice added successfully")
+        }else{
+            alert('Error While adding notice')
+        }
+    }
+
     useEffect(() => {
         noofpresentstudent();
+        getnotice();
     }, [])
+
+    const getnotice = async () => {
+        // setAddedNotice([]);
+        let result = await fetch("http://localhost:8050/notice/getnotice", {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' },
+        })
+        result = await result.json();
+        setAddedNotice(result);
+        setAddedNotice(result);
+        addedNotice.unshift({noticeWriter,notice,date});
+        console.log(addedNotice)
+    }
+
     const noofpresentstudent = async () => {
         let d = new Date();
         const date = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear();
@@ -62,13 +105,15 @@ export default function DirectorProfile() {
             body: JSON.stringify({ date })
         })
         result = await result.json();
+
         let totalStudent = 0;
-        result.map((c) => {
+        result.s.map((c) => {
             totalStudent = totalStudent + c.totalStudent;
         })
         settps(totalStudent);
         setPSList(result);
-        console.log(result);
+        settpt(result.t.length);
+
     }
 
     const setPresent = (ps, pse) => {
@@ -81,14 +126,16 @@ export default function DirectorProfile() {
         pStudent.unshift(newStd);
     }
 
-    const getAttendence= (e)=>{
+    const getAttendence = (e) => {
         setCwps([]);
-      psList.map((x)=>{
-       if(x.attendenceClass==e.target.value){
-        setCwps(x.pStudent);
-        console.log(x);
-       }
-      })
+        setaCls(e.target.value);
+        psList.map((x) => {
+            if (x.attendenceClass == e.target.value) {
+                setCwps(x.pStudent);
+                setCwps(x.pStudent);
+            }
+        })
+
     }
 
     const submitAttendance = async () => {
@@ -119,7 +166,6 @@ export default function DirectorProfile() {
         })
         result = await result.json();
         setClassSt(result);
-        console.log(result);
     };
 
     const getStudent = async (event) => {
@@ -132,7 +178,6 @@ export default function DirectorProfile() {
         })
         result = await result.json();
         setStudentArray(result);
-        console.log(result);
     };
 
     const getStudents = async () => {
@@ -180,18 +225,13 @@ export default function DirectorProfile() {
         } else {
             alert(sresult.message);
         }
-
-        console.log(sresult);
     }
 
     const [show, setShow] = useState(false);
 
     const handleClose = () => {
         setShow(false);
-
     }
-
-
     // ---------student updation operation --------------
     const handleShow = async (em) => {
         setStd("");
@@ -209,7 +249,6 @@ export default function DirectorProfile() {
     const handleUpdate = async (stdupdate) => {
         setShow(false);
         let Email = stdupdate.email;
-        console.log(Email, stdName, stdEmail, stdMobile, stdDob, stdFatherName)
         let updatedstd = await fetch("http://localhost:8050/director/updatestudent", {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
@@ -221,9 +260,7 @@ export default function DirectorProfile() {
         }
     }
 
-
     // ----------teacher update operation---------------
-
     const handletShow = async (t) => {
         setShow(true);
         let tchr = await fetch('http://localhost:8050/director/getoneteacher', {
@@ -233,13 +270,11 @@ export default function DirectorProfile() {
         })
         tchr = await tchr.json();
         sett(tchr);
-        console.log(tchr)
     }
 
     const handletUpdate = async (stdupdate) => {
         setShow(false);
         let Email = stdupdate.email;
-        console.log(Email, tName, tEmail, tMobile, tFatherName, tSubject, tGender, tAddress, tSalary)
         let updatedstd = await fetch("http://localhost:8050/director/updateteacher", {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
@@ -277,905 +312,1016 @@ export default function DirectorProfile() {
                     <h3><b>Mr Prem Kumar</b></h3>
                     <h6>Role: Director of school</h6>
                 </div>
-                <div className="noofstd dfdr jcac">
-                    <h6 className="me-4">Present Student</h6>
-                    <div onLoad={noofpresentstudent} className="dfdr jcac">
-                        <div className="brdr dfdr jcac"></div>
-                        <div className="pr_std dfdr jcac">
-                            <h5 className="mb-0">{totalPresentStudent}</h5>
-                        </div>
-                    </div>
-                </div>
-                <button className="btn btn-primary ms-4" onClick={logout}>Log out</button>
 
+                <button className="btn btn-primary logout_btn" onClick={logout}>Log out</button>
             </div>
-            {/* ------------Teacher related operation---------------- */}
-            <section className="dfdr jcac">
-                <div className="teacher_sec dfdc jcac">
-                    <h1 className="text-danger"><b>Teacher</b></h1>
-                    <div className="dfdr jcac tchr">
-                        <div className="teacher_img ">
-                            <img src="/static/teacher.png" alt="Teacher logo" />
-                        </div>
-                        <div className="teacher_action dfdc">
-                            <Link to="/teacher/signup"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-person-plus me-3" viewBox="0 0 16 16">
-                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
-                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5" />
-                            </svg> Add New Teacher</Link>
-                            <Link onClick={getteachers}><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-card-list me-3" viewBox="0 0 16 16">
-                                <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z" />
-                                <path d="M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8m0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0M4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0" />
-                            </svg> All Teachers List</Link>
-                            <Link><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-search me-3 " viewBox="0 0 16 16">
-                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
-                            </svg> Search a Teacher</Link>
-                            <input type="text" className="mt-2 p-1" placeholder="Enter teacher's name" onChange={(e) => setSt(e.target.value)} />
-                            <button className="btn btn-primary mt-2" onClick={searchTeacher}>Search</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* searched teacher list -- */}
-            <ol className="mt-4">
-                {
-                    searchedTeacher.map((teacher) => (
-                        <li key={teacher._id}>
-                            <Accordion >
-                                <Accordion.Item eventKey={teacher._id}>
-                                    <Accordion.Header>
-                                        <div className="dfdr student_table">
-                                            <p> {teacher.username}</p>
-                                            <a variant="primary" onClick={() => handletShow(teacher.email)}>Update  </a>
-                                            <a onClick={() => deleteStudent(teacher.email)}>Delete</a>
+            <div className="dfdr jcac mt-4 director_body">
+                <Accordion className="director_acordian bg-dark" defaultActiveKey={['1']} alwaysOpen>
+                    {/*---------- Teacher part---------- */}
+                    <Accordion.Item eventKey="0" >
+                        <Accordion.Header>
+                            <div className="dfdr jcac justify-content-evenly">
+                                <img src="/static/teacher.webp" alt="" className="me-4 ms-4" style={{ border: "1px solid grey", width: "35px" }} />
+                                <h4 className="me-4 ms-4">Teacher</h4>
+                                <div className="noofstd dfdr jcac">
+                                    <h5 className="me-4 text-danger hd"> Total Teachers &nbsp;&nbsp;</h5>
+                                    <div onLoad={noofpresentstudent} className="dfdr jcac">
+                                        <div className="brdr dfdr jcac"></div>
+                                        <div className="pr_std dfdr jcac">
+                                            <h5 className="mb-0 text-success fw-bold">{tpt}</h5>
                                         </div>
+                                    </div>
+                                </div>                            </div>
 
-                                        <Modal show={show} onHide={handleClose}>
-                                            <Modal.Header closeButton>
-                                                <Modal.Title>{std.username}</Modal.Title>
-                                            </Modal.Header>
-                                            <Modal.Body className="updateForm_c p-3 bg-success">
-                                                <form action="" className="update_f dfdr justify-content-between">
-                                                    <div className="f1">
-                                                        <div className="form_input dfdc">
-                                                            <label >Name</label>
-                                                            <input type="text" defaultValue={tchr.username} onChange={(e) => settname(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label >Email</label>
-                                                            <input type="text" defaultValue={tchr.email} onChange={(e) => settEmail(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Mobile</label>
-                                                            <input type="text" defaultValue={tchr.mobile} onChange={(e) => settMobile(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Subject</label>
-                                                            <input type="text" defaultValue={tchr.subject} onChange={(e) => settSubject(e.target.value)} />
-                                                        </div>
-                                                    </div>
-                                                    <div className="f1">
-                                                        <div className="form_input dfdc">
-                                                            <label>Father's Name</label>
-                                                            <input type="text" defaultValue={tchr.fatherName} onChange={(e) => settFatherName(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Salary</label>
-                                                            <input type="Date" defaultValue={tchr.salary} onChange={(e) => settSalary(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Address</label>
-                                                            <input type="text" defaultValue={tchr.address} onChange={(e) => settAddress(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Gender</label>
-                                                            {['radio'].map((type) => (
-                                                                <div className="mb-1">
-                                                                    <Form.Check
-                                                                        value="Male" onClick={() => setStdGender("Male")}
-                                                                        inline label="Male" name="group1" id="male" type={type} />
-                                                                    <Form.Check
-                                                                        value="Female" onClick={() => setStdGender("Female")}
-                                                                        inline label="Female" name="group1" id="female" type={type} />
-                                                                </div>
-                                                            ))}                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </Modal.Body>
-                                            <Modal.Footer>
-                                                <Button variant="secondary" onClick={handleClose}>
-                                                    Close
-                                                </Button>
-                                                <Button variant="primary" onClick={() => handletUpdate(teacher)}>
-                                                    Save Changes
-                                                </Button>
-                                            </Modal.Footer>
-                                        </Modal>
-                                    </Accordion.Header>
-                                    <Accordion.Body>
-                                        <div className="dfdc jcac std_details">
-                                            <h2>{std.username}</h2>
-                                            <div className="dfdr jcac std_container">
-                                                <div className="std_photo">
-                                                    <img src={teacher.image} alt="teacher photo" height="200" />
-                                                </div>
-                                                <div className="std_data">
-                                                    <table border={1}>
-                                                        <tbody>
-                                                            <tr >
-                                                                <td >Mobile Number : </td>
-                                                                <td>{teacher.mobile}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Email : </td>
-                                                                <td>{teacher.email}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Gender</td>
-                                                                <td>{teacher.gender}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Address : </td>
-                                                                <td>{teacher.address}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Father's Name : </td>
-                                                                <td>{teacher.fatherName}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Subject : </td>
-                                                                <td>{teacher.subject}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Qualification : </td>
-                                                                <td>{teacher.qualification}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Salary : </td>
-                                                                <td>{teacher.salary}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Joining Date : </td>
-                                                                <td>{teacher.createdAt.slice(0, 10)}</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-
-                                                </div>
-                                            </div>
+                        </Accordion.Header>
+                        <Accordion.Body>
+                            <section className="dfdr jcac">
+                                <div className="teacher_sec dfdc jcac">
+                                    <h1 className="text-danger bottom_border"><b>Teacher</b></h1>
+                                    <div className="dfdr jcac tchr">
+                                        <div className="teacher_img ">
+                                            <img src="/static/teacher.png" alt="Teacher logo" />
                                         </div>
-                                    </Accordion.Body>
-                                </Accordion.Item>
-                            </Accordion>
-                        </li>
-                    ))
-                }
-            </ol>
-
-            <ol className="mt-4">
-                {
-                    teachers.map((teacher) => (
-                        <li key={teacher._id}>
-                            <Accordion >
-                                <Accordion.Item eventKey={teacher._id}>
-                                    <Accordion.Header>
-                                        <div className="dfdr student_table">
-                                            <p> {teacher.username}</p>
-                                            <a variant="primary" onClick={() => handletShow(teacher.email)}>Update  </a>
-                                            <a onClick={() => deleteStudent(teacher.email)}>Delete</a>
+                                        <div className="teacher_action dfdc">
+                                            <Link to="/teacher/signup"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-person-plus me-3" viewBox="0 0 16 16">
+                                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
+                                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5" />
+                                            </svg> Add New Teacher</Link>
+                                            <Link onClick={getteachers}><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-card-list me-3" viewBox="0 0 16 16">
+                                                <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z" />
+                                                <path d="M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8m0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0M4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0" />
+                                            </svg> All Teachers List</Link>
+                                            <Link><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-search me-3 " viewBox="0 0 16 16">
+                                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                                            </svg> Search a Teacher</Link>
+                                            <input type="text" className="mt-2 p-1" placeholder="Enter teacher's name" onChange={(e) => setSt(e.target.value)} />
+                                            <button className="btn btn-primary mt-2" onClick={searchTeacher}>Search</button>
                                         </div>
-
-                                        <Modal show={show} onHide={handleClose}>
-                                            <Modal.Header closeButton>
-                                                <Modal.Title>{std.username}</Modal.Title>
-                                            </Modal.Header>
-                                            <Modal.Body className="updateForm_c p-3 bg-success">
-                                                <form action="" className="update_f dfdr justify-content-between">
-                                                    <div className="f1">
-                                                        <div className="form_input dfdc">
-                                                            <label >Name</label>
-                                                            <input type="text" defaultValue={tchr.username} onChange={(e) => settname(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label >Email</label>
-                                                            <input type="text" defaultValue={tchr.email} onChange={(e) => settEmail(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Mobile</label>
-                                                            <input type="text" defaultValue={tchr.mobile} onChange={(e) => settMobile(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Subject</label>
-                                                            <input type="text" defaultValue={tchr.subject} onChange={(e) => settSubject(e.target.value)} />
-                                                        </div>
-                                                    </div>
-                                                    <div className="f1">
-                                                        <div className="form_input dfdc">
-                                                            <label>Father's Name</label>
-                                                            <input type="text" defaultValue={tchr.fatherName} onChange={(e) => settFatherName(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Salary</label>
-                                                            <input type="Date" defaultValue={tchr.salary} onChange={(e) => settSalary(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Address</label>
-                                                            <input type="text" defaultValue={tchr.address} onChange={(e) => settAddress(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Gender</label>
-                                                            {['radio'].map((type) => (
-                                                                <div className="mb-1">
-                                                                    <Form.Check
-                                                                        value="Male" onClick={() => setStdGender("Male")}
-                                                                        inline label="Male" name="group1" id="male" type={type} />
-                                                                    <Form.Check
-                                                                        value="Female" onClick={() => setStdGender("Female")}
-                                                                        inline label="Female" name="group1" id="female" type={type} />
-                                                                </div>
-                                                            ))}                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </Modal.Body>
-                                            <Modal.Footer>
-                                                <Button variant="secondary" onClick={handleClose}>
-                                                    Close
-                                                </Button>
-                                                <Button variant="primary" onClick={() => handletUpdate(teacher)}>
-                                                    Save Changes
-                                                </Button>
-                                            </Modal.Footer>
-                                        </Modal>
-                                    </Accordion.Header>
-                                    <Accordion.Body>
-                                        <div className="dfdc jcac std_details">
-                                            <h2>{std.username}</h2>
-                                            <div className="dfdr jcac std_container">
-                                                <div className="std_photo">
-                                                    <img src={teacher.image} alt="teacher photo" height="200" />
-                                                </div>
-                                                <div className="std_data">
-                                                    <table border={1}>
-                                                        <tbody>
-                                                            <tr >
-                                                                <td >Mobile Number : </td>
-                                                                <td>{teacher.mobile}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Email : </td>
-                                                                <td>{teacher.email}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Gender</td>
-                                                                <td>{teacher.gender}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Address : </td>
-                                                                <td>{teacher.address}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Father's Name : </td>
-                                                                <td>{teacher.fatherName}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Subject : </td>
-                                                                <td>{teacher.subject}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Qualification : </td>
-                                                                <td>{teacher.qualification}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Salary : </td>
-                                                                <td>{teacher.salary}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Joining Date : </td>
-                                                                <td>{teacher.createdAt.slice(0, 10)}</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Accordion.Body>
-                                </Accordion.Item>
-                            </Accordion>
-                        </li>
-                    ))
-                }
-            </ol>
-
-            {/* --------------student related operations ---------------- */}
-            <section className="dfdr jcac">
-                <div className="student_sec dfdc jcac mb-4">
-                    <h1 className="text-danger"><b> STUDENT</b></h1>
-                    <div className="dfdr jcac tchr">
-                        <div className="teacher_img">
-                            <img src="/static/student1.avif" alt="Teacher logo" />
-                        </div>
-                        <div className="teacher_action dfdc">
-                            <Link to="/student/signup"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-person-plus me-3" viewBox="0 0 16 16">
-                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
-                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5" />
-                            </svg> Add New Student</Link>
-                            <Link onClick={getStudents}><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-card-list me-3" viewBox="0 0 16 16">
-                                <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z" />
-                                <path d="M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8m0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0M4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0" />
-                            </svg> All Students List</Link>
-
-                            <Link >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className=" me-3 bi bi-people-fill" viewBox="0 0 16 16">
-                                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5" />
-                                </svg>
-                                Class Wise Students
-                            </Link>
+                                    </div>
+                                </div>
+                            </section>
+                        </Accordion.Body>
+                    </Accordion.Item>
+                    {/* -----------student part----------- */}
+                    <Accordion.Item eventKey="1">
+                        <Accordion.Header>
                             <div className="dfdr">
-                                <select className='mt-1 s_l' onChange={filterStudent}>
-                                    <option >Select Class</option>
-                                    <option value="I">I</option>
-                                    <option value="II" >II</option>
-                                    <option value="III">III</option>
-                                    <option value="IV" >IV</option>
-                                    <option value="V">V</option>
-                                    <option value="VI">VI</option>
-                                    <option value="VII">VII</option>
-                                    <option value="VIII" >VIII</option>
-                                    <option value="IX">IX</option>
-                                    <option value="X">X</option>
-                                    <option value="DELED">XI</option>
-                                    <option value="Ph.D">XII</option>/
-                                </select>
-                            </div>
-
-
-                            <Link >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="me-3 bi bi-list-check" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3.854 2.146a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 3.293l1.146-1.147a.5.5 0 0 1 .708 0m0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 7.293l1.146-1.147a.5.5 0 0 1 .708 0m0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0" />
-                                </svg>
-                                Make Attandance
-                            </Link>
-                            <div className="dfdr">
-                                <select className='mt-1 s_l' onChange={getStudent}>
-                                    <option >Select Class</option>
-                                    <option value="I">I</option>
-                                    <option value="II" >II</option>
-                                    <option value="III">III</option>
-                                    <option value="IV" >IV</option>
-                                    <option value="V">V</option>
-                                    <option value="VI">VI</option>
-                                    <option value="VII">VII</option>
-                                    <option value="VIII" >VIII</option>
-                                    <option value="IX">IX</option>
-                                    <option value="X">X</option>
-                                    
-                                </select>
-                            </div>
-
-                            <Link >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="me-3 bi bi-list-check" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3.854 2.146a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 3.293l1.146-1.147a.5.5 0 0 1 .708 0m0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 7.293l1.146-1.147a.5.5 0 0 1 .708 0m0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0" />
-                                </svg>
-                                See Attandance
-                            </Link>
-                            <div className="dfdr">
-                                <select className='mt-1 s_l' onChange={getAttendence}>
-                                    <option >Select Class</option>
-                                    <option value="I">I</option>
-                                    <option value="II" >II</option>
-                                    <option value="III">III</option>
-                                    <option value="IV" >IV</option>
-                                    <option value="V">V</option>
-                                    <option value="VI">VI</option>
-                                    <option value="VII">VII</option>
-                                    <option value="VIII" >VIII</option>
-                                    <option value="IX">IX</option>
-                                    <option value="X">X</option>
-                                </select>
-                            </div>
-
-
-
-                            <Link><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-search me-3 " viewBox="0 0 16 16">
-                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
-                            </svg> Search a Student</Link>
-                            <input type="text" className="mt-2 p-1" style={{ marginLeft: "3vw" }} placeholder="Enter student's name" onChange={(e) => setSs(e.target.value)} />
-                            <button className="btn btn-primary mt-2" style={{ marginLeft: "3vw" }} onClick={searchstudent}>Search</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            {/* ----------searched students will display here--------- */}
-
-            <ol>
-                {
-                    students.map((student) => (
-                        <li key={student.email}>
-                            <Accordion >
-                                <Accordion.Item eventKey={student._id}>
-                                    <Accordion.Header>
-                                        <div className="dfdr student_table">
-                                            <p> {student.username}</p>
-                                            <a variant="primary" onClick={() => handleShow(student.email)}>Update  </a>
-                                            <a onClick={() => deleteStudent(student.email)}>Delete</a>
+                                <img src="/static/student.jpg" alt="student" className="me-4 ms-4" style={{ border: "1px solid grey", width: "35px", height: "40px" }} />
+                                <h4 className="ms-4 me-4 mt-1">Student</h4>
+                                <div className="noofstd dfdr jcac">
+                                    <h5 className="me-4 text-danger hd">Present Student</h5>
+                                    <div onLoad={noofpresentstudent} className="dfdr jcac">
+                                        <div className="brdr dfdr jcac"></div>
+                                        <div className="pr_std dfdr jcac">
+                                            <h5 className="mb-0 text-success fw-bold">{totalPresentStudent}</h5>
                                         </div>
-
-                                        <Modal show={show} onHide={handleClose}>
-                                            <Modal.Header closeButton>
-                                                <Modal.Title>{std.username}</Modal.Title>
-                                            </Modal.Header>
-                                            <Modal.Body className="updateForm_c p-3 bg-success">
-                                                <form action="" className="update_f dfdr justify-content-between">
-                                                    <div className="f1">
-                                                        <div className="form_input dfdc">
-                                                            <label >Name</label>
-                                                            <input type="text" defaultValue={std.username} onChange={(e) => setStdname(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label >Email</label>
-                                                            <input type="text" defaultValue={std.email} onChange={(e) => setStdEmail(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Mobile</label>
-                                                            <input type="text" defaultValue={std.mobile} onChange={(e) => setStdMobile(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>class</label>
-                                                            <select className='mt-1' value={stdClass} onChange={handleSelectChange}>                            <option value="">Select qualification</option>
-                                                                <option value="I">I</option>
-                                                                <option value="II" >II</option>
-                                                                <option value="III">III</option>
-                                                                <option value="IV" >IV</option>
-                                                                <option value="V">V</option>
-                                                                <option value="VI">VI</option>
-                                                                <option value="VII">VII</option>
-                                                                <option value="VIII" >VIII</option>
-                                                                <option value="IX">IX</option>
-                                                                <option value="X">X</option>
-                                                                <option value="DELED">XI</option>
-                                                                <option value="Ph.D">XII</option>/
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div className="f1">
-                                                        <div className="form_input dfdc">
-                                                            <label>Father's Name</label>
-                                                            <input type="text" defaultValue={std.fatherName} onChange={(e) => setStdFatherName(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>DOB</label>
-                                                            <input type="Date" defaultValue={std.dob} onChange={(e) => setStdDob(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Address</label>
-                                                            <input type="text" defaultValue={std.address} onChange={(e) => setStdAddress(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Gender</label>
-                                                            {['radio'].map((type) => (
-                                                                <div className="mb-1">
-                                                                    <Form.Check
-                                                                        value="Male" onClick={() => setStdGender("Male")}
-                                                                        inline label="Male" name="group1" id="male" type={type} />
-                                                                    <Form.Check
-                                                                        value="Female" onClick={() => setStdGender("Female")}
-                                                                        inline label="Female" name="group1" id="female" type={type} />
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </Modal.Body>
-                                            <Modal.Footer>
-                                                <Button variant="secondary" onClick={handleClose}>
-                                                    Close
-                                                </Button>
-                                                <Button variant="primary" onClick={() => handleUpdate(student)}>
-                                                    Save Changes
-                                                </Button>
-                                            </Modal.Footer>
-                                        </Modal>
-                                    </Accordion.Header>
-                                    <Accordion.Body>
-                                        <div className="dfdc jcac std_details">
-                                            <h2>{std.username}</h2>
-                                            <div className="dfdr jcac std_container">
-                                                <div className="std_photo">
-                                                    <img src={student.image} alt="student photo" height="200" />
-                                                </div>
-                                                <div className="std_data">
-                                                    <table border={1}>
-                                                        <tbody>
-                                                            <tr >
-                                                                <td>Gender</td>
-                                                                <td >{student.gender}</td>
-                                                            </tr>
-
-                                                            <tr >
-                                                                <td>Class</td>
-                                                                <td >{student.standard}</td>
-                                                            </tr>
-
-                                                            <tr >
-                                                                <td >Father's Name</td>
-                                                                <td>{student.fatherName}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >DOB</td>
-                                                                <td>{student.dob}</td>
-                                                            </tr>
-
-
-                                                            <tr >
-                                                                <td >Contact Number</td>
-                                                                <td>{student.mobile}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Email</td>
-                                                                <td>{student.email}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Address</td>
-                                                                <td>{student.address}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Admission Date</td>
-                                                                <td>{student.createdAt.slice(0, 10)}</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Accordion.Body>
-                                </Accordion.Item>
-                            </Accordion>
-                        </li>
-                    ))
-                }
-            </ol>
-
-            {/* filterer student class wise */}
-            <ol>
-                {
-                    classSt.map((student) => (
-                        <li key={student.email}>
-                            <Accordion >
-                                <Accordion.Item eventKey={student._id}>
-                                    <Accordion.Header>
-                                        <div className="dfdr student_table">
-                                            <p> {student.username}</p>
-                                            <a variant="primary" onClick={() => handleShow(student.email)}>Update  </a>
-                                            <a onClick={() => deleteStudent(student.email)}>Delete</a>
-                                        </div>
-
-                                        <Modal show={show} onHide={handleClose}>
-                                            <Modal.Header closeButton>
-                                                <Modal.Title>{std.username}</Modal.Title>
-                                            </Modal.Header>
-                                            <Modal.Body className="updateForm_c p-3 bg-success">
-                                                <form action="" className="update_f dfdr justify-content-between">
-                                                    <div className="f1">
-                                                        <div className="form_input dfdc">
-                                                            <label >Name</label>
-                                                            <input type="text" defaultValue={std.username} onChange={(e) => setStdname(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label >Email</label>
-                                                            <input type="text" defaultValue={std.email} onChange={(e) => setStdEmail(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Mobile</label>
-                                                            <input type="text" defaultValue={std.mobile} onChange={(e) => setStdMobile(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>class</label>
-                                                            <select className='mt-1' value={stdClass} onChange={handleSelectChange}>                            <option value="">Select qualification</option>
-                                                                <option value="I">I</option>
-                                                                <option value="II" >II</option>
-                                                                <option value="III">III</option>
-                                                                <option value="IV" >IV</option>
-                                                                <option value="V">V</option>
-                                                                <option value="VI">VI</option>
-                                                                <option value="VII">VII</option>
-                                                                <option value="VIII" >VIII</option>
-                                                                <option value="IX">IX</option>
-                                                                <option value="X">X</option>
-                                                                <option value="DELED">XI</option>
-                                                                <option value="Ph.D">XII</option>/
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div className="f1">
-                                                        <div className="form_input dfdc">
-                                                            <label>Father's Name</label>
-                                                            <input type="text" defaultValue={std.fatherName} onChange={(e) => setStdFatherName(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>DOB</label>
-                                                            <input type="Date" defaultValue={std.dob} onChange={(e) => setStdDob(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Address</label>
-                                                            <input type="text" defaultValue={std.address} onChange={(e) => setStdAddress(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Gender</label>
-                                                            {['radio'].map((type) => (
-                                                                <div className="mb-1">
-                                                                    <Form.Check
-                                                                        value="Male" onClick={() => setStdGender("Male")}
-                                                                        inline label="Male" name="group1" id="male" type={type} />
-                                                                    <Form.Check
-                                                                        value="Female" onClick={() => setStdGender("Female")}
-                                                                        inline label="Female" name="group1" id="female" type={type} />
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </Modal.Body>
-                                            <Modal.Footer>
-                                                <Button variant="secondary" onClick={handleClose}>
-                                                    Close
-                                                </Button>
-                                                <Button variant="primary" onClick={() => handleUpdate(student)}>
-                                                    Save Changes
-                                                </Button>
-                                            </Modal.Footer>
-                                        </Modal>
-                                    </Accordion.Header>
-                                    <Accordion.Body>
-                                        <div className="dfdc jcac std_details">
-                                            <h2>{student.username}</h2>
-                                            <div className="dfdr jcac std_container">
-                                                <div className="std_photo">
-                                                    <img src={student.image} alt="student photo" height="200" />
-                                                </div>
-                                                <div className="std_data">
-                                                    <table border={1}>
-                                                        <tbody>
-                                                            <tr >
-                                                                <td>Gender</td>
-                                                                <td >{student.gender}</td>
-                                                            </tr>
-
-                                                            <tr >
-                                                                <td>Class</td>
-                                                                <td >{student.standard}</td>
-                                                            </tr>
-
-                                                            <tr >
-                                                                <td >Father's Name</td>
-                                                                <td>{student.fatherName}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >DOB</td>
-                                                                <td>{student.dob}</td>
-                                                            </tr>
-
-
-                                                            <tr >
-                                                                <td >Contact Number</td>
-                                                                <td>{student.mobile}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Email</td>
-                                                                <td>{student.email}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Address</td>
-                                                                <td>{student.address}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Admission Date</td>
-                                                                <td>{student.createdAt.slice(0, 10)}</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Accordion.Body>
-                                </Accordion.Item>
-                            </Accordion>
-                        </li>
-                    ))
-                }
-            </ol>
-
-            <ol>
-                {
-                    searchedStudent.map((student) => (
-                        <li key={student._id}>
-                            <Accordion >
-                                <Accordion.Item eventKey={student._id}>
-                                    <Accordion.Header>
-                                        <div className="dfdr student_table">
-                                            <p> {student.username}</p>
-                                            <a variant="primary" onClick={() => handleShow(student.email)}>Update  </a>
-                                            <a onClick={() => deleteStudent(student.email)}>Delete</a>
-                                        </div>
-
-                                        <Modal show={show} onHide={handleClose}>
-                                            <Modal.Header closeButton>
-                                                <Modal.Title>{std.username}</Modal.Title>
-                                            </Modal.Header>
-                                            <Modal.Body className="updateForm_c p-3 bg-success">
-                                                <form action="" className="update_f dfdr justify-content-between">
-                                                    <div className="f1">
-                                                        <div className="form_input dfdc">
-                                                            <label >Name of student</label>
-                                                            <input type="text" defaultValue={std.username} onChange={(e) => setStdname(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label >Email</label>
-                                                            <input type="text" defaultValue={std.email} onChange={(e) => setStdEmail(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Mobile</label>
-                                                            <input type="text" defaultValue={std.mobile} onChange={(e) => setStdMobile(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>class</label>
-                                                            <select className='mt-1' onChange={handleSelectChange}>                            <option value="">Select qualification</option>
-                                                                <option value="I">I</option>
-                                                                <option value="II" >II</option>
-                                                                <option value="III">III</option>
-                                                                <option value="IV" >IV</option>
-                                                                <option value="V">V</option>
-                                                                <option value="VI">VI</option>
-                                                                <option value="VII">VII</option>
-                                                                <option value="VIII" >VIII</option>
-                                                                <option value="IX">IX</option>
-                                                                <option value="X">X</option>
-                                                                <option value="DELED">XI</option>
-                                                                <option value="Ph.D">XII</option>/
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div className="f1">
-                                                        <div className="form_input dfdc">
-                                                            <label>Father's Name</label>
-                                                            <input type="text" defaultValue={std.fatherName} onChange={(e) => setStdFatherName(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>DOB</label>
-                                                            <input type="Date" defaultValue={std.dob} onChange={(e) => setStdDob(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Address</label>
-                                                            <input type="text" defaultValue={std.address} onChange={(e) => setStdAddress(e.target.value)} />
-                                                        </div>
-                                                        <div className="form_input dfdc">
-                                                            <label>Gender</label>
-                                                            {['radio'].map((type) => (
-                                                                <div className="mb-1">
-                                                                    <Form.Check
-                                                                        value="Male" onClick={() => setStdGender("Male")}
-                                                                        inline label="Male" name="group1" id="male" type={type} />
-                                                                    <Form.Check
-                                                                        value="Female" onClick={() => setStdGender("Female")}
-                                                                        inline label="Female" name="group1" id="female" type={type} />
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </Modal.Body>
-                                            <Modal.Footer>
-                                                <Button variant="secondary" onClick={handleClose}>
-                                                    Close
-                                                </Button>
-                                                <Button variant="primary" onClick={() => handleUpdate(std)}>
-                                                    Save Changes
-                                                </Button>
-                                            </Modal.Footer>
-                                        </Modal>
-                                    </Accordion.Header>
-                                    <Accordion.Body>
-                                        <div className="dfdc jcac std_details">
-                                            <h2>{std.username}</h2>
-                                            <div className="dfdr jcac std_container">
-                                                <div className="std_photo">
-                                                    <img src={student.image} alt="student photo" height="200" />
-                                                </div>
-                                                <div className="std_data">
-                                                    <table border={1}>
-                                                        <tbody>
-                                                            <tr >
-                                                                <td>Gender</td>
-                                                                <td >{student.gender}</td>
-                                                            </tr>
-
-                                                            <tr >
-                                                                <td>Class</td>
-                                                                <td >{student.standard}</td>
-                                                            </tr>
-
-                                                            <tr >
-                                                                <td >Father's Name</td>
-                                                                <td>{student.fatherName}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >DOB</td>
-                                                                <td>{student.dob}</td>
-                                                            </tr>
-
-
-                                                            <tr >
-                                                                <td >Contact Number</td>
-                                                                <td>{student.mobile}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Email</td>
-                                                                <td>{student.email}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Address</td>
-                                                                <td>{student.address}</td>
-                                                            </tr>
-                                                            <tr >
-                                                                <td >Admission Date</td>
-                                                                <td>{student.createdAt.slice(0, 10)}</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Accordion.Body>
-                                </Accordion.Item>
-                            </Accordion>
-                        </li>
-                    ))
-                }
-            </ol>
-
-            <ol className="dfdc jcac">
-                {
-                    studentArray.map((s) => (
-                        <li key={s._id} className="st_atd ms-4">
-                            <div className="dfdr justify-content-evenly atd_c">
-                                <p>{s.username}</p>
-                                <div>
-                                    {['radio'].map((type) => (
-                                        <div className="mb-1">
-                                            <Form.Check
-                                                value="P" onClick={() => setPresent(s.username, s.email)}
-                                                inline label="Present" name={s._id} id="male" type={type} />
-                                            <Form.Check
-                                                value="A" onClick={() => setStdGender("Female")}
-                                                inline label="Absent" defaultChecked name={s._id} id="female" type={type} />
-                                        </div>
-                                    ))}
+                                    </div>
                                 </div>
                             </div>
-                        </li>
 
-                    ))
-                }
-                {showButton ? <button className="btn btn-primary" onClick={submitAttendance}>Submit Attendence</button> : null}
-            </ol>
+                        </Accordion.Header>
+                        <Accordion.Body>
+                            <section className="dfdr jcac">
+                                <div className="student_sec dfdc jcac mb-4">
+                                    <h1 className="text-danger bottom_border"><b> STUDENT</b></h1>
+                                    <div className="dfdr jcac tchr">
+                                        <div className="teacher_img">
+                                            <img src="/static/student1.avif" alt="Teacher logo" />
+                                        </div>
+                                        <div className="teacher_action dfdc">
+                                            <Link to="/student/signup"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-person-plus me-3" viewBox="0 0 16 16">
+                                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
+                                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5" />
+                                            </svg> Add New Student</Link>
+                                            <Link onClick={getStudents}><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-card-list me-3" viewBox="0 0 16 16">
+                                                <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z" />
+                                                <path d="M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8m0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0M4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0" />
+                                            </svg> All Students List</Link>
 
+                                            <Link><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="bi bi-search me-3 " viewBox="0 0 16 16">
+                                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                                            </svg> Search a Student</Link>
+                                            <input type="text" className="mt-2 p-1" style={{ marginLeft: "3vw" }} placeholder="Enter student's name" onChange={(e) => setSs(e.target.value)} />
+                                            <button className="btn btn-primary mt-2" style={{ marginLeft: "3vw" }} onClick={searchstudent}>Search</button>
+                                        </div>
+                                        <div className="dfdc teacher_action">
+                                            <Link >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className=" me-3 bi bi-people-fill" viewBox="0 0 16 16">
+                                                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5" />
+                                                </svg>
+                                                Class Wise Students
+                                            </Link>
+                                            <div className="dfdr">
+                                                <select className='mt-1 s_l' onChange={filterStudent}>
+                                                    <option >Select Class</option>
+                                                    <option value="I">I</option>
+                                                    <option value="II" >II</option>
+                                                    <option value="III">III</option>
+                                                    <option value="IV" >IV</option>
+                                                    <option value="V">V</option>
+                                                    <option value="VI">VI</option>
+                                                    <option value="VII">VII</option>
+                                                    <option value="VIII" >VIII</option>
+                                                    <option value="IX">IX</option>
+                                                    <option value="X">X</option>
+                                                    <option value="DELED">XI</option>
+                                                    <option value="Ph.D">XII</option>/
+                                                </select>
+                                            </div>
+                                            <Link >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="me-3 bi bi-list-check" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3.854 2.146a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 3.293l1.146-1.147a.5.5 0 0 1 .708 0m0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 7.293l1.146-1.147a.5.5 0 0 1 .708 0m0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0" />
+                                                </svg>
+                                                Make Attandance
+                                            </Link>
+                                            <div className="dfdr">
+                                                <select className='mt-1 s_l' onChange={getStudent}>
+                                                    <option >Select Class</option>
+                                                    <option value="I">I</option>
+                                                    <option value="II" >II</option>
+                                                    <option value="III">III</option>
+                                                    <option value="IV" >IV</option>
+                                                    <option value="V">V</option>
+                                                    <option value="VI">VI</option>
+                                                    <option value="VII">VII</option>
+                                                    <option value="VIII" >VIII</option>
+                                                    <option value="IX">IX</option>
+                                                    <option value="X">X</option>
+
+                                                </select>
+                                            </div>
+
+                                            <Link >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className="me-3 bi bi-list-check" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3.854 2.146a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 3.293l1.146-1.147a.5.5 0 0 1 .708 0m0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 7.293l1.146-1.147a.5.5 0 0 1 .708 0m0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0" />
+                                                </svg>
+                                                See Attandance
+                                            </Link>
+                                            <div className="dfdr">
+                                                <select className='mt-1 s_l' onChange={getAttendence}>
+                                                    <option >Select Class</option>
+                                                    <option value="I">I</option>
+                                                    <option value="II" >II</option>
+                                                    <option value="III">III</option>
+                                                    <option value="IV" >IV</option>
+                                                    <option value="V">V</option>
+                                                    <option value="VI">VI</option>
+                                                    <option value="VII">VII</option>
+                                                    <option value="VIII" >VIII</option>
+                                                    <option value="IX">IX</option>
+                                                    <option value="X">X</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </Accordion.Body>
+                    </Accordion.Item>
+                </Accordion>
+                <div className="dfdc">
+                    {/* ----add notice---------- */}
+                    <div className="notice_input">
+                        <h5 className="text-center text-white bg-primary p-2">Add Notice</h5>
+                        <div className="p-1">
+                            <b>Your Name </b>
+                            <input type="text" placeholder="Add text here" onChange={(e) => setNoticeWriter(e.target.value)} />
+                            <b>Notice</b>
+                            <textarea name="" id="" cols="22" rows="4" onChange={(e) => setNotice(e.target.value)}></textarea>
+                            {notice?<button className="btn btn-primary" onClick={submitNotice}>Submit</button>:null}
+                        </div>
+                    </div>
+                    {/* -------notice board--- */}
+                    <div className="notice_output mt-1">
+                        <h4 className="text-center text-white bg-success p-2">Notice Board</h4>
+                        <ol className="pt-4 mt-4">
+                            {
+                                addedNotice.map((notice) => (
+                                    <li><b>{notice.noticeWriter}</b> {notice.notice} <br /> <p>{notice.date}</p></li>
+                                ))
+                            }
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+
+            {/* searched teacher list -- */}
+            {teachers.length > 0 ? <div className="list_view mb-3 mt-3">
+                <ol className="mt-4">
+                    {
+                        searchedTeacher.map((teacher) => (
+                            <li key={teacher._id}>
+                                <Accordion >
+                                    <Accordion.Item eventKey={teacher._id}>
+                                        <Accordion.Header>
+                                            <div className="dfdr student_table">
+                                                <img src={teacher.image} alt="profile" style={{ height: "30px", width: "30px" }} className="br-50 me-2" />
+                                                <p className="fw-bold std_name"> {teacher.username}</p>
+                                                <a variant="primary" onClick={() => handletShow(teacher.email)}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                                                </svg> <span className="hd">Update</span> </a>
+                                                <a onClick={() => deleteStudent(teacher.email)}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                                    <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                                                </svg> <span className="hd">Delete</span></a>
+                                            </div>
+
+                                            <Modal show={show} onHide={handleClose}>
+                                                <Modal.Header closeButton>
+                                                    <Modal.Title>{std.username}</Modal.Title>
+                                                </Modal.Header>
+                                                <Modal.Body className="updateForm_c p-3 bg-success">
+                                                    <form action="" className="update_f dfdr justify-content-between">
+                                                        <div className="f1">
+                                                            <div className="form_input dfdc">
+                                                                <label >Name</label>
+                                                                <input type="text" defaultValue={tchr.username} onChange={(e) => settname(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label >Email</label>
+                                                                <input type="text" defaultValue={tchr.email} onChange={(e) => settEmail(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Mobile</label>
+                                                                <input type="text" defaultValue={tchr.mobile} onChange={(e) => settMobile(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Subject</label>
+                                                                <input type="text" defaultValue={tchr.subject} onChange={(e) => settSubject(e.target.value)} />
+                                                            </div>
+                                                        </div>
+                                                        <div className="f1">
+                                                            <div className="form_input dfdc">
+                                                                <label>Father's Name</label>
+                                                                <input type="text" defaultValue={tchr.fatherName} onChange={(e) => settFatherName(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Salary</label>
+                                                                <input type="Date" defaultValue={tchr.salary} onChange={(e) => settSalary(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Address</label>
+                                                                <input type="text" defaultValue={tchr.address} onChange={(e) => settAddress(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Gender</label>
+                                                                {['radio'].map((type) => (
+                                                                    <div className="mb-1">
+                                                                        <Form.Check
+                                                                            value="Male" onClick={() => setStdGender("Male")}
+                                                                            inline label="Male" name="group1" id="male" type={type} />
+                                                                        <Form.Check
+                                                                            value="Female" onClick={() => setStdGender("Female")}
+                                                                            inline label="Female" name="group1" id="female" type={type} />
+                                                                    </div>
+                                                                ))}                                                        </div>
+                                                        </div>
+                                                    </form>
+                                                </Modal.Body>
+                                                <Modal.Footer>
+                                                    <Button variant="secondary" onClick={handleClose}>
+                                                        Close
+                                                    </Button>
+                                                    <Button variant="primary" onClick={() => handletUpdate(teacher)}>
+                                                        Save Changes
+                                                    </Button>
+                                                </Modal.Footer>
+                                            </Modal>
+                                        </Accordion.Header>
+                                        <Accordion.Body>
+                                            <div className="dfdc jcac std_details">
+                                                <h2>{std.username}</h2>
+                                                <div className="dfdr jcac std_container">
+                                                    <div className="std_photo">
+                                                        <img src={teacher.image} alt="teacher photo" height="200" />
+                                                    </div>
+                                                    <div className="std_data">
+                                                        <table border={1}>
+                                                            <tbody>
+                                                                <tr >
+                                                                    <td >Mobile Number : </td>
+                                                                    <td>{teacher.mobile}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Email : </td>
+                                                                    <td>{teacher.email}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Gender</td>
+                                                                    <td>{teacher.gender}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Address : </td>
+                                                                    <td>{teacher.address}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Father's Name : </td>
+                                                                    <td>{teacher.fatherName}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Subject : </td>
+                                                                    <td>{teacher.subject}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Qualification : </td>
+                                                                    <td>{teacher.qualification}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Salary : </td>
+                                                                    <td>{teacher.salary}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Joining Date : </td>
+                                                                    <td>{teacher.createdAt.slice(0, 10)}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                </Accordion>
+                            </li>
+                        ))
+                    }
+                </ol>
+            </div> : null}
+
+            {/* ---all  teacher list--------- */}
+            {teachers.length > 0 ? <div className="list_view mb-3">
+                <ol className="mt-4">
+                    {
+                        teachers.map((teacher) => (
+                            <li key={teacher._id}>
+                                <Accordion >
+                                    <Accordion.Item eventKey={teacher._id}>
+                                        <Accordion.Header>
+                                            <div className="dfdr student_table">
+                                                <img src={teacher.image} alt="profile" style={{ height: "30px", width: "30px" }} className="br-50 me-2" />
+                                                <p className="fw-bold std_name"> {teacher.username}</p>
+                                                <a variant="primary" onClick={() => handletShow(teacher.email)}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                                                </svg> <span className="hd">Update</span> </a>
+                                                <a onClick={() => deleteStudent(teacher.email)}> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                                    <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                                                </svg> <span className="hd">Delete</span></a>
+                                            </div>
+
+                                            <Modal show={show} onHide={handleClose}>
+                                                <Modal.Header closeButton>
+                                                    <Modal.Title>{std.username}</Modal.Title>
+                                                </Modal.Header>
+                                                <Modal.Body className="updateForm_c p-3 bg-success">
+                                                    <form action="" className="update_f dfdr justify-content-between">
+                                                        <div className="f1">
+                                                            <div className="form_input dfdc">
+                                                                <label >Name</label>
+                                                                <input type="text" defaultValue={tchr.username} onChange={(e) => settname(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label >Email</label>
+                                                                <input type="text" defaultValue={tchr.email} onChange={(e) => settEmail(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Mobile</label>
+                                                                <input type="text" defaultValue={tchr.mobile} onChange={(e) => settMobile(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Subject</label>
+                                                                <input type="text" defaultValue={tchr.subject} onChange={(e) => settSubject(e.target.value)} />
+                                                            </div>
+                                                        </div>
+                                                        <div className="f1">
+                                                            <div className="form_input dfdc">
+                                                                <label>Father's Name</label>
+                                                                <input type="text" defaultValue={tchr.fatherName} onChange={(e) => settFatherName(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Salary</label>
+                                                                <input type="Date" defaultValue={tchr.salary} onChange={(e) => settSalary(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Address</label>
+                                                                <input type="text" defaultValue={tchr.address} onChange={(e) => settAddress(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Gender</label>
+                                                                {['radio'].map((type) => (
+                                                                    <div className="mb-1">
+                                                                        <Form.Check
+                                                                            value="Male" onClick={() => setStdGender("Male")}
+                                                                            inline label="Male" name="group1" id="male" type={type} />
+                                                                        <Form.Check
+                                                                            value="Female" onClick={() => setStdGender("Female")}
+                                                                            inline label="Female" name="group1" id="female" type={type} />
+                                                                    </div>
+                                                                ))}                                                        </div>
+                                                        </div>
+                                                    </form>
+                                                </Modal.Body>
+                                                <Modal.Footer>
+                                                    <Button variant="secondary" onClick={handleClose}>
+                                                        Close
+                                                    </Button>
+                                                    <Button variant="primary" onClick={() => handletUpdate(teacher)}>
+                                                        Save Changes
+                                                    </Button>
+                                                </Modal.Footer>
+                                            </Modal>
+                                        </Accordion.Header>
+                                        <Accordion.Body>
+                                            <div className="dfdc jcac std_details">
+                                                <h2>{std.username}</h2>
+                                                <div className="dfdr jcac std_container">
+                                                    <div className="std_photo">
+                                                        <img src={teacher.image} alt="teacher photo" height="200" />
+                                                    </div>
+                                                    <div className="std_data">
+                                                        <table border={1}>
+                                                            <tbody>
+                                                                <tr >
+                                                                    <td >Mobile Number : </td>
+                                                                    <td>{teacher.mobile}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Email : </td>
+                                                                    <td>{teacher.email}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Gender</td>
+                                                                    <td>{teacher.gender}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Address : </td>
+                                                                    <td>{teacher.address}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Father's Name : </td>
+                                                                    <td>{teacher.fatherName}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Subject : </td>
+                                                                    <td>{teacher.subject}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Qualification : </td>
+                                                                    <td>{teacher.qualification}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Salary : </td>
+                                                                    <td>{teacher.salary}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Joining Date : </td>
+                                                                    <td>{teacher.createdAt.slice(0, 10)}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                </Accordion>
+                            </li>
+                        ))
+                    }
+                </ol>
+            </div> : null}
+
+            {/* ----------searched students will display here--------- */}
+            {students.length > 0 ? <div className="list_view mb-3">
+                <ol>
+                    <h4 className="text-center mb-3 bottom_border">All Students of School (Total: {students.length})</h4>
+                    {
+                        students.map((student) => (
+                            <li key={student.email}>
+                                <Accordion >
+                                    <Accordion.Item eventKey={student._id}>
+                                        <Accordion.Header>
+                                            <div className="dfdr student_table">
+                                                <img src={student.image} alt="profile" style={{ height: "30px", width: "30px" }} className="br-50 me-2" />
+                                                <p className="fw-bold std_name"> {student.username}</p>
+                                                <a variant="primary" onClick={() => handleShow(student.email)}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                                                </svg> <span className="hd">Update</span>
+                                                </a>
+                                                <a onClick={() => deleteStudent(student.email)}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                                    <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                                                </svg> <span className="hd">Delete</span> </a>
+
+                                            </div>
+
+                                            <Modal show={show} onHide={handleClose}>
+                                                <Modal.Header closeButton>
+                                                    <Modal.Title>{std.username}</Modal.Title>
+                                                </Modal.Header>
+                                                <Modal.Body className="updateForm_c p-3 bg-success">
+                                                    <form action="" className="update_f dfdr justify-content-between">
+                                                        <div className="f1">
+                                                            <div className="form_input dfdc">
+                                                                <label >Name</label>
+                                                                <input type="text" defaultValue={std.username} onChange={(e) => setStdname(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label >Email</label>
+                                                                <input type="text" defaultValue={std.email} onChange={(e) => setStdEmail(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Mobile</label>
+                                                                <input type="text" defaultValue={std.mobile} onChange={(e) => setStdMobile(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>class</label>
+                                                                <select className='mt-1' value={stdClass} onChange={handleSelectChange}>                            <option value="">Select qualification</option>
+                                                                    <option value="I">I</option>
+                                                                    <option value="II" >II</option>
+                                                                    <option value="III">III</option>
+                                                                    <option value="IV" >IV</option>
+                                                                    <option value="V">V</option>
+                                                                    <option value="VI">VI</option>
+                                                                    <option value="VII">VII</option>
+                                                                    <option value="VIII" >VIII</option>
+                                                                    <option value="IX">IX</option>
+                                                                    <option value="X">X</option>
+                                                                    <option value="DELED">XI</option>
+                                                                    <option value="Ph.D">XII</option>/
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div className="f1">
+                                                            <div className="form_input dfdc">
+                                                                <label>Father's Name</label>
+                                                                <input type="text" defaultValue={std.fatherName} onChange={(e) => setStdFatherName(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>DOB</label>
+                                                                <input type="Date" defaultValue={std.dob} onChange={(e) => setStdDob(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Address</label>
+                                                                <input type="text" defaultValue={std.address} onChange={(e) => setStdAddress(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Gender</label>
+                                                                {['radio'].map((type) => (
+                                                                    <div className="mb-1">
+                                                                        <Form.Check
+                                                                            value="Male" onClick={() => setStdGender("Male")}
+                                                                            inline label="Male" name="group1" id="male" type={type} />
+                                                                        <Form.Check
+                                                                            value="Female" onClick={() => setStdGender("Female")}
+                                                                            inline label="Female" name="group1" id="female" type={type} />
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </Modal.Body>
+                                                <Modal.Footer>
+                                                    <Button variant="secondary" onClick={handleClose}>
+                                                        Close
+                                                    </Button>
+                                                    <Button variant="primary" onClick={() => handleUpdate(student)}>
+                                                        Save Changes
+                                                    </Button>
+                                                </Modal.Footer>
+                                            </Modal>
+                                        </Accordion.Header>
+                                        <Accordion.Body>
+                                            <div className="dfdc jcac std_details">
+                                                <h2>{std.username}</h2>
+                                                <div className="dfdr jcac std_container">
+                                                    <div className="std_photo">
+                                                        <img src={student.image} alt="student photo" height="200" />
+                                                    </div>
+                                                    <div className="std_data">
+                                                        <table border={1}>
+                                                            <tbody>
+                                                                <tr >
+                                                                    <td>Gender</td>
+                                                                    <td >{student.gender}</td>
+                                                                </tr>
+
+                                                                <tr >
+                                                                    <td>Class</td>
+                                                                    <td >{student.standard}</td>
+                                                                </tr>
+
+                                                                <tr >
+                                                                    <td >Father's Name</td>
+                                                                    <td>{student.fatherName}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >DOB</td>
+                                                                    <td>{student.dob}</td>
+                                                                </tr>
+
+
+                                                                <tr >
+                                                                    <td >Contact Number</td>
+                                                                    <td>{student.mobile}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Email</td>
+                                                                    <td>{student.email}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Address</td>
+                                                                    <td>{student.address}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Admission Date</td>
+                                                                    <td>{student.createdAt.slice(0, 10)}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                </Accordion>
+                            </li>
+                        ))
+                    }
+                </ol>
+            </div> : null}
+
+
+            {/* filterer student class wise */}
+            {classSt.length > 0 ? <div className="list_view mb-3">
+                <h4 className="text-center mb-3 text-white bottom_border">All Students of class: {classSt[0].standard}</h4>
+                <ol>
+                    {
+                        classSt.map((student) => (
+                            <li key={student.email}>
+                                <Accordion >
+                                    <Accordion.Item eventKey={student._id}>
+                                        <Accordion.Header>
+                                            <div className="dfdr student_table">
+                                                <img src={student.image} alt="profile" style={{ height: "30px", width: "30px" }} className="br-50 me-2" />
+                                                <p className="fw-bold std_name"> {student.username}</p>
+                                                <a variant="primary" onClick={() => handleShow(student.email)}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                                                </svg> <span className="hd">Update</span>  </a>
+                                                <a onClick={() => deleteStudent(student.email)}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                                    <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                                                </svg> <span className="hd">Delete</span></a>
+                                            </div>
+
+                                            <Modal show={show} onHide={handleClose}>
+                                                <Modal.Header closeButton>
+                                                    <Modal.Title>{std.username}</Modal.Title>
+                                                </Modal.Header>
+                                                <Modal.Body className="updateForm_c p-3 bg-success">
+                                                    <form action="" className="update_f dfdr justify-content-between">
+                                                        <div className="f1">
+                                                            <div className="form_input dfdc">
+                                                                <label >Name</label>
+                                                                <input type="text" defaultValue={std.username} onChange={(e) => setStdname(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label >Email</label>
+                                                                <input type="text" defaultValue={std.email} onChange={(e) => setStdEmail(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Mobile</label>
+                                                                <input type="text" defaultValue={std.mobile} onChange={(e) => setStdMobile(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>class</label>
+                                                                <select className='mt-1' value={stdClass} onChange={handleSelectChange}>                            <option value="">Select qualification</option>
+                                                                    <option value="I">I</option>
+                                                                    <option value="II" >II</option>
+                                                                    <option value="III">III</option>
+                                                                    <option value="IV" >IV</option>
+                                                                    <option value="V">V</option>
+                                                                    <option value="VI">VI</option>
+                                                                    <option value="VII">VII</option>
+                                                                    <option value="VIII" >VIII</option>
+                                                                    <option value="IX">IX</option>
+                                                                    <option value="X">X</option>
+                                                                    <option value="DELED">XI</option>
+                                                                    <option value="Ph.D">XII</option>/
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div className="f1">
+                                                            <div className="form_input dfdc">
+                                                                <label>Father's Name</label>
+                                                                <input type="text" defaultValue={std.fatherName} onChange={(e) => setStdFatherName(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>DOB</label>
+                                                                <input type="Date" defaultValue={std.dob} onChange={(e) => setStdDob(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Address</label>
+                                                                <input type="text" defaultValue={std.address} onChange={(e) => setStdAddress(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Gender</label>
+                                                                {['radio'].map((type) => (
+                                                                    <div className="mb-1">
+                                                                        <Form.Check
+                                                                            value="Male" onClick={() => setStdGender("Male")}
+                                                                            inline label="Male" name="group1" id="male" type={type} />
+                                                                        <Form.Check
+                                                                            value="Female" onClick={() => setStdGender("Female")}
+                                                                            inline label="Female" name="group1" id="female" type={type} />
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </Modal.Body>
+                                                <Modal.Footer>
+                                                    <Button variant="secondary" onClick={handleClose}>
+                                                        Close
+                                                    </Button>
+                                                    <Button variant="primary" onClick={() => handleUpdate(student)}>
+                                                        Save Changes
+                                                    </Button>
+                                                </Modal.Footer>
+                                            </Modal>
+                                        </Accordion.Header>
+                                        <Accordion.Body>
+                                            <div className="dfdc jcac std_details">
+                                                <h2>{student.username}</h2>
+                                                <div className="dfdr jcac std_container">
+                                                    <div className="std_photo">
+                                                        <img src={student.image} alt="student photo" height="200" />
+                                                    </div>
+                                                    <div className="std_data">
+                                                        <table border={1}>
+                                                            <tbody>
+                                                                <tr >
+                                                                    <td>Gender</td>
+                                                                    <td >{student.gender}</td>
+                                                                </tr>
+
+                                                                <tr >
+                                                                    <td>Class</td>
+                                                                    <td >{student.standard}</td>
+                                                                </tr>
+
+                                                                <tr >
+                                                                    <td >Father's Name</td>
+                                                                    <td>{student.fatherName}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >DOB</td>
+                                                                    <td>{student.dob}</td>
+                                                                </tr>
+
+
+                                                                <tr >
+                                                                    <td >Contact Number</td>
+                                                                    <td>{student.mobile}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Email</td>
+                                                                    <td>{student.email}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Address</td>
+                                                                    <td>{student.address}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Admission Date</td>
+                                                                    <td>{student.createdAt.slice(0, 10)}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                </Accordion>
+                            </li>
+                        ))
+                    }
+                </ol>
+            </div> : null}
+            {/* -----setudent search result--------------- */}
+            {searchedStudent.length > 0 ? <div className="list_view mt-2 mb-3">
+                <h5 className="text-center mb-3 text-white bottom_border">Search result (Total matched names found: {searchedStudent.length})</h5>
+                <ol>
+                    {
+                        searchedStudent.map((student) => (
+                            <li key={student._id}>
+                                <Accordion >
+                                    <Accordion.Item eventKey={student._id}>
+                                        <Accordion.Header>
+                                            <div className="dfdr student_table">
+                                                <img src={student.image} alt="profile" style={{ height: "30px", width: "30px" }} className="br-50 me-2" />
+                                                <p className="fw-bold std_name"> {student.username}</p>
+                                                <a variant="primary" onClick={() => handleShow(student.email)}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                                                </svg> <span className="hd">Update</span></a>
+                                                <a onClick={() => deleteStudent(student.email)}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                                    <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                                                </svg> <span className="hd">Delete</span> </a>
+                                            </div>
+
+                                            <Modal show={show} onHide={handleClose}>
+                                                <Modal.Header closeButton>
+                                                    <Modal.Title>{std.username}</Modal.Title>
+                                                </Modal.Header>
+                                                <Modal.Body className="updateForm_c p-3 bg-success">
+                                                    <form action="" className="update_f dfdr justify-content-between">
+                                                        <div className="f1">
+                                                            <div className="form_input dfdc">
+                                                                <label >Name of student</label>
+                                                                <input type="text" defaultValue={std.username} onChange={(e) => setStdname(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label >Email</label>
+                                                                <input type="text" defaultValue={std.email} onChange={(e) => setStdEmail(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Mobile</label>
+                                                                <input type="text" defaultValue={std.mobile} onChange={(e) => setStdMobile(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>class</label>
+                                                                <select className='mt-1' onChange={handleSelectChange}>                            <option value="">Select qualification</option>
+                                                                    <option value="I">I</option>
+                                                                    <option value="II" >II</option>
+                                                                    <option value="III">III</option>
+                                                                    <option value="IV" >IV</option>
+                                                                    <option value="V">V</option>
+                                                                    <option value="VI">VI</option>
+                                                                    <option value="VII">VII</option>
+                                                                    <option value="VIII" >VIII</option>
+                                                                    <option value="IX">IX</option>
+                                                                    <option value="X">X</option>
+                                                                    <option value="DELED">XI</option>
+                                                                    <option value="Ph.D">XII</option>/
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div className="f1">
+                                                            <div className="form_input dfdc">
+                                                                <label>Father's Name</label>
+                                                                <input type="text" defaultValue={std.fatherName} onChange={(e) => setStdFatherName(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>DOB</label>
+                                                                <input type="Date" defaultValue={std.dob} onChange={(e) => setStdDob(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Address</label>
+                                                                <input type="text" defaultValue={std.address} onChange={(e) => setStdAddress(e.target.value)} />
+                                                            </div>
+                                                            <div className="form_input dfdc">
+                                                                <label>Gender</label>
+                                                                {['radio'].map((type) => (
+                                                                    <div className="mb-1">
+                                                                        <Form.Check
+                                                                            value="Male" onClick={() => setStdGender("Male")}
+                                                                            inline label="Male" name="group1" id="male" type={type} />
+                                                                        <Form.Check
+                                                                            value="Female" onClick={() => setStdGender("Female")}
+                                                                            inline label="Female" name="group1" id="female" type={type} />
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </Modal.Body>
+                                                <Modal.Footer>
+                                                    <Button variant="secondary" onClick={handleClose}>
+                                                        Close
+                                                    </Button>
+                                                    <Button variant="primary" onClick={() => handleUpdate(std)}>
+                                                        Save Changes
+                                                    </Button>
+                                                </Modal.Footer>
+                                            </Modal>
+                                        </Accordion.Header>
+                                        <Accordion.Body>
+                                            <div className="dfdc jcac std_details">
+                                                <h2>{std.username}</h2>
+                                                <div className="dfdr jcac std_container">
+                                                    <div className="std_photo">
+                                                        <img src={student.image} alt="student photo" height="200" />
+                                                    </div>
+                                                    <div className="std_data">
+                                                        <table border={1}>
+                                                            <tbody>
+                                                                <tr >
+                                                                    <td>Gender</td>
+                                                                    <td >{student.gender}</td>
+                                                                </tr>
+
+                                                                <tr >
+                                                                    <td>Class</td>
+                                                                    <td >{student.standard}</td>
+                                                                </tr>
+
+                                                                <tr >
+                                                                    <td >Father's Name</td>
+                                                                    <td>{student.fatherName}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >DOB</td>
+                                                                    <td>{student.dob}</td>
+                                                                </tr>
+
+
+                                                                <tr >
+                                                                    <td >Contact Number</td>
+                                                                    <td>{student.mobile}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Email</td>
+                                                                    <td>{student.email}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Address</td>
+                                                                    <td>{student.address}</td>
+                                                                </tr>
+                                                                <tr >
+                                                                    <td >Admission Date</td>
+                                                                    <td>{student.createdAt.slice(0, 10)}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                </Accordion>
+                            </li>
+                        ))
+                    }
+                </ol>
+            </div> : null}
+
+            {/* ----------students for attendence---------- */}
+            {studentArray.length > 0 ? <div className="list_view mt-2 mb-3">
+                <h5 className="text-center mb-3 text-white bottom_border">Attendance For class:  {studentArray[0].standard}</h5>
+                <ol className="dfdc jcac">
+                    {
+                        studentArray.map((s) => (
+                            <li key={s._id} className="st_atd">
+                                <div className="dfdr justify-content-evenly atd_c">
+                                    <div className="dfdr jc">
+                                        <img src={s.image} alt="profile" style={{ height: "30px", width: "30px" }} className="br-50 me-2" />
+                                        <p>{s.username}</p>
+                                    </div>
+                                    <div>
+                                        {['radio'].map((type) => (
+                                            <div className="mb-1 dfdr">
+                                                <Form.Check
+                                                    value="P" onClick={() => setPresent(s.username, s.email)}
+                                                    inline label="Present" name={s._id} id="male" type={type} />
+                                                <Form.Check
+                                                    value="A" onClick={() => setStdGender("Female")}
+                                                    inline label="Absent" defaultChecked name={s._id} id="female" type={type} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </li>
+
+                        ))
+                    }
+                    {showButton ? <button className="btn btn-primary" onClick={submitAttendance}>Submit Attendence</button> : null}
+                </ol>
+            </div> : null}
             {/* present student list */}
-            <ol className="dfdc jcac">
-                {
-                    cwps.map((s) => (
-                        <li key={s._id} className="st_atd ms-4">
-                            <div className="dfdr justify-content-evenly atd_c">
-                                <p>{s.username}</p>
-                            </div>
-                        </li>
+            {cwps.length > 0 ? <div className="list_view mt-2 mt-2 mb-2">
+                <h3 className="text-white text-center mt-2 mb-4 bottom_border">Present student of class: {aClass}</h3>
+                <ol className="dfdc jcac ">
+                    {
+                        cwps.map((s) => (
+                            <li key={s._id} className="st_atd ms-4">
+                                <div className="dfdr justify-content-evenly atd_c">
+                                    <p>{s.username}</p>
+                                    <p>{s.email}</p>
+                                </div>
+                            </li>
 
-                    ))
-                }
-                {showButton ? <button className="btn btn-primary" onClick={submitAttendance}>Submit Attendence</button> : null}
-            </ol>
+                        ))
+                    }
+                </ol>
+            </div> : null}
 
 
 

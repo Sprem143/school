@@ -38,7 +38,16 @@ justify-content: space-between;
 .br-50{
   border-radius: 50%;
 }
-
+.std_name{
+  color: rgb(255, 0, 191);
+}
+.accordion-button{
+  padding: 0 !important;
+}
+.accordion-button::after {
+  flex-shrink: unset;
+  margin-right: 5vw !important;
+}
 .loginForm {
   height: auto;
   width: 100%;
@@ -89,4 +98,8 @@ justify-content: space-between;
     background-image: url("/static/loginmobile.png");
     background-size: contain
   }
+  .logout_btn{
+    margin: 0!important;
+  }
 }
+

@@ -11,18 +11,14 @@ exports.noofpresentstudent = async (req, res) => {
    try{
     const { date } = req.body;
     let result = await Attendence.where({ dateNow: date }).find();
-    let totalStudent = 0;
-    // result.map((c) => {
-    //     totalStudent = totalStudent + c.totalStudent;
-    // })
-    // console.log(result)
-   res.status(200).json(result);
+    let tresult = await Teacher.find();
+       const r = {s:result, t:tresult};
+    //    console.log(r)
+   res.status(200).json(r);
    }catch(err){
     res.status(201).json({message:"Internal error while fetching data"});
    }
 }
-
-// take attendence ------------
 
 exports.attendence = async (req, res) => {
     try {

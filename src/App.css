@@ -47,7 +47,7 @@
 
 /* student table */
 .student_table {
-    height: 20px;
+    height: 30px;
 
     a {
         width: 25vw;
@@ -55,7 +55,7 @@
 
     a:hover {
         font-weight: bold;
-        color: blue;
+        color: blue !important;
         text-decoration: underline;
     }
 
@@ -149,5 +149,8 @@
     .std_data td {
         width: 40vw;
 
+    }
+    .student_table a{
+        width: 20vw;
     }
 }

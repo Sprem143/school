@@ -9,6 +9,7 @@ import TeacherProfile from './pages/Teacher/TeacherProfile';
 import DirectorLogin from './pages/Director/DirectorLogin';
 import StudentRegistration from './pages/student/StudentRegistration';
 import TeacherSignup from './pages/Teacher/TeacherSignup';
+import StudentLogin from './pages/student/StudentLogin';
 export default function App() {
 
   return (
@@ -17,9 +18,13 @@ export default function App() {
      <Routes>
       <Route path="/" element={<Header />}>
         <Route index element={<Home/>}></Route>
+
         <Route path='/student/signup' element={<StudentRegistration/>} />
+        <Route path='/student/login' element={<StudentLogin/>} />
+
         <Route path='/director/login' element={<DirectorLogin/>} />
         <Route path='/director/profile' element={<DirectorProfile/>} />
+
         <Route path='/teacher/profile' element={<TeacherProfile/>} />
         <Route path='/teacher/login' element={<TeacherLogin/>} />
         <Route path='/teacher/signup' element={<TeacherSignup/>} />
