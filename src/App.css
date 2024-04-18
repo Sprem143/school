@@ -21,11 +21,6 @@
     flex-basis: 50% !important;
 }
 
-.about-img {
-    flex-basis: 50%;
-    background-color: rgb(255, 255, 255);
-    box-shadow: -1px 1px 3px 3px rgb(29, 115, 149);
-}
 
 .about {
     display: flex;

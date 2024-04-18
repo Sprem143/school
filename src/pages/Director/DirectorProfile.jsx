@@ -62,7 +62,6 @@ export default function DirectorProfile() {
         let d = new Date();
         const date = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear();
         setDate(date);
-        console.log( noticeWriter, notice, date)
         let result = await fetch('http://localhost:8050/notice/addnotice', {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
@@ -92,7 +91,6 @@ export default function DirectorProfile() {
         setAddedNotice(result);
         setAddedNotice(result);
         addedNotice.unshift({noticeWriter,notice,date});
-        console.log(addedNotice)
     }
 
     const noofpresentstudent = async () => {
@@ -128,14 +126,15 @@ export default function DirectorProfile() {
 
     const getAttendence = (e) => {
         setCwps([]);
+
         setaCls(e.target.value);
-        psList.map((x) => {
+   console.log(psList)
+        psList.t.map((x) => {
             if (x.attendenceClass == e.target.value) {
                 setCwps(x.pStudent);
                 setCwps(x.pStudent);
             }
         })
-
     }
 
     const submitAttendance = async () => {
@@ -150,7 +149,8 @@ export default function DirectorProfile() {
         })
         result = await result.json();
         alert(result.message);
-        setPStudent([]);
+        setPStudent(result);
+        setPStudent(result);
         noofpresentstudent();
     }
 

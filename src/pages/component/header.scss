@@ -49,6 +49,28 @@
     }  
 }
 
+.moving{
+    position: absolute;
+    animation: move 12s linear infinite alternate;
+    z-index: 5!important;
+    img{
+        opacity: 0.7;
+        box-shadow: 0 0 2px 2px white;
+        border-radius: 50%;
+    }
+}
+@keyframes move {
+    0%{
+        margin-left: 0%;
+        transform: rotateY(0deg);
+    }
+    50%{
+        margin-left:98%;
+        transform: rotateY(180deg);
+
+    }
+
+}
 .navbar{
     padding-right: 2.5rem!important;
 }

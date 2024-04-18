@@ -28,22 +28,23 @@ export default function Header() {
     <>
       {[false].map((expand) => (
         <Navbar key={expand} expand={expand} className="bg-dark navbar">
+          <div className="moving"><img src="/static/moving.png" width="50" /></div>
           <Container fluid>
             <div className="dfdr ac justify-content-between nav_link">
               <Navbar.Brand href="#" className="p-0">
                 <div className="dfdr jcac">
-                  <img src="/static/Prem.png" alt="" height="60" className="br-50" />
-                  <h5 className="text-white ms-3">School <br /> Name</h5>
+                  <img src="/static/Prem.png" alt="" height="60" className="br-50" style={{zIndex:"100"}} />
+                  <h5 className="text-white ms-3" style={{zIndex:"100"}}>School <br /> Name</h5>
                 </div>
               </Navbar.Brand>
-              <div className="dfdr ac">
+              <div className="dfdr ac" style={{zIndex:"100"}}>
                 <Link to="" className="text-white nav-links hd ms-3 me-3">Home</Link>
                 <Link to="" className="text-white nav-links hd ms-3 me-3">Cources</Link>
                 <Link to="" className="text-white nav-links hd ms-3 me-3">Our Teacher</Link>
                 <Link to="" className="text-white nav-links hd ms-3 me-3">Admission</Link>
                 <Link to="" className="text-white nav-links hd ms-3 me-3">Notice</Link>
                 {/* ----log in button */}
-                <DropdownButton id="dropdown-basic-button" title="Log in" className="hd login_btn me-3">
+                <DropdownButton id="dropdown-basic-button" style={{zIndex:"1000"}} title="Log in" className="hd login_btn me-3">
                   <Dropdown.Item >
                     {cookie === 'Director' ? <Link to="/director/profile" className="fw-bold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="me-2 bi bi-person-fill-check" viewBox="0 0 16 16">
                       <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />

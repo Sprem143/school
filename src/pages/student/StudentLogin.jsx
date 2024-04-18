@@ -66,7 +66,7 @@ export default function StudentLogin() {
             {login ?
                 <div className="s_profile">
                     <div className="dfdr jcac std_nav">
-                        <img src={student.img} alt="Profile" className="director-img" />
+                        <img src={student.image} alt="Profile" className="director-img" />
                         <div className="dfdc jcac" style={{ flexBasis: "60%" }}>
                             <h3><b className="text-white">{student.username}</b></h3>
                             <h6 className="text-white">Role:Student</h6>

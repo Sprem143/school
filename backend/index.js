@@ -4,7 +4,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose= require('mongoose');
 const session = require('express-session')
-const PORT = 8050;
+const PORT = process.env.PORT || 8050;
+require('dotenv').config();
 app.use(cors());
 const connectDb = require('./config/mongoose')
 connectDb();

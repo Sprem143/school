@@ -3,7 +3,18 @@ const Student = require('../student/student.model');
 const Teacher = require('../teacher/teacher.model');
 const Attendence = require('../student/studentAttendence.model')
 const jwt = require('jsonwebtoken');
-const secret_key = 'prem_7366';
+require('dotenv').config();
+
+const generateToken = (payload) => {
+    try {
+      const token = jwt.sign(payload,'school', { expiresIn: '1h' });
+      return token;
+    } catch (error) {
+      console.error('Error generating token:', error);
+      throw new Error('Error generating token');
+    }
+  };
+  
 
 
 // ----get total present student
@@ -54,7 +65,9 @@ exports.signin = async (req, res) => {
         let director = await Director.findOne({ email });
         if (director) {
             if (password == director.password) {
-                const token = jwt.sign({ director }, secret_key, { expiresIn: "2h" })
+                const token = generateToken({director})
+                console.log(token);
+
                 res.status(200).json({ token: token });
             } else {
                 res.status(404).json({ message: 'Incorrect password' });
@@ -83,9 +96,10 @@ exports.addteacher = async (req, res) => {
     try {
         const newTeacher = new Teacher(req.body);
         await newTeacher.save();
-        res.status(200).json({ message: "Teacher added successfully" })
+        res.status(200).json({ message: "Teacher added successfully",status:200 })
     } catch (err) {
         res.status(201).json({ message: "Error while adding teacher" });
+        console.log(err);
     }
 }
 // ----- log out ------------

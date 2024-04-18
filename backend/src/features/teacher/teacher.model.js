@@ -42,7 +42,7 @@ const teacherSchema = mongoose.Schema({
         require:true
     },
     
-
+cookie:String
 
 },{timestamps: true})
 module.exports = mongoose.model('Teacher', teacherSchema);

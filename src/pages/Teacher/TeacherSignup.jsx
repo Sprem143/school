@@ -2,11 +2,12 @@ import Cookies from 'js-cookie';
 import { useController, useForm } from "react-hook-form";
 import { useState } from "react";
 import Form from 'react-bootstrap/Form';
+import { useNavigate } from 'react-router-dom';
 import { isEmail } from 'react-form-validator-core/lib/ValidationRules';
 
 
 export default function TeacherSignup() {
-   
+   let navigate= useNavigate();
 
     const [username, setUsername] = useState("")
     const [email, setEmail] = useState("");
@@ -19,6 +20,7 @@ export default function TeacherSignup() {
     const [salary, setSalary] = useState("");
     const [qualification, setQualification] = useState("");
     const [image, setImage] = useState("");
+    const[cookie,setCookie]=useState("");
 
 
     const convertToBase64 = (e) => {
@@ -45,14 +47,17 @@ export default function TeacherSignup() {
     } = useForm()
 
     const handleRegistration = async () => {
-        if (Cookies.get('director')) {
+        if (Cookies.get('Director')) {
             let newTeacher = await fetch('http://localhost:8050/director/addteacher', {
                 method: "POST",
                 headers: { 'Content-type': 'application/json' },
-                body: JSON.stringify({ username, fatherName, email, mobile, gender, qualification, subject, salary, address,image, password })
+                body: JSON.stringify({ username, fatherName, email, mobile, gender, qualification, subject, salary, address,image, password,cookie })
             })
             newTeacher = await newTeacher.json();
             alert(newTeacher.message)
+            if(newTeacher.status==200){
+                navigate('/teacher/login')
+            }
         }
     }
     return (
