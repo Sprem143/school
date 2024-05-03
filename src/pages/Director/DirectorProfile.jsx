@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import './director.scss'
 import Form from 'react-bootstrap/Form';
 import 'react-multi-carousel/lib/styles.css';
+import { verifyToken } from "../../../backend/src/features/auth";
 
 export default function DirectorProfile() {
 
@@ -68,19 +69,32 @@ export default function DirectorProfile() {
             body: JSON.stringify({ noticeWriter, notice, date })
         });
         result = await result.json();
-        if(result){
+        if (result) {
             getnotice();
             alert("Notice added successfully")
-        }else{
+        } else {
             alert('Error While adding notice')
         }
     }
 
     useEffect(() => {
+        let token= document.cookie.split("=")[1]
+        verifyToken(token)
         noofpresentstudent();
         getnotice();
     }, [])
+  const verifyToken=async(token)=>{
+ let result= await fetch("http://localhost:8050/director/verifytoken",{
+    method:"POST",
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({token:token})
+ })
+ result= await result.json();
+ if(result.message=="false"){
+navigate('/director/login');
+ }
 
+  }
     const getnotice = async () => {
         // setAddedNotice([]);
         let result = await fetch("http://localhost:8050/notice/getnotice", {
@@ -90,7 +104,7 @@ export default function DirectorProfile() {
         result = await result.json();
         setAddedNotice(result);
         setAddedNotice(result);
-        addedNotice.unshift({noticeWriter,notice,date});
+        addedNotice.unshift({ noticeWriter, notice, date });
     }
 
     const noofpresentstudent = async () => {
@@ -114,27 +128,37 @@ export default function DirectorProfile() {
 
     }
 
-    const setPresent = (ps, pse) => {
+    const setPresent =async (ps,email) => {
         setShowButton(true);
+       let d = new Date();
+       const date= d.getDate();
+       const yearmonth= `${d.getFullYear()}${d.getMonth()}`
+       console.log(date, yearmonth)
+        let result= await fetch("http://localhost:8050/director/setattendance",{
+            method:"POST",
+            headers:{'Content-Type':"application/json"},
+            body:JSON.stringify({email,yearmonth,date})
+        })
+
         if (!pStudent) {
-            let student = { username: ps, email: pse };
+            let student = { username: ps, email: email};
             setPStudent(student);
         }
-        let newStd = { username: ps, email: pse }
+        let newStd = { username: ps, email: email }
         pStudent.unshift(newStd);
     }
 
-    const getAttendence = (e) => {
+    const getAttendence = async (e) => {
         setCwps([]);
-
-        setaCls(e.target.value);
-   console.log(psList)
-        psList.t.map((x) => {
-            if (x.attendenceClass == e.target.value) {
-                setCwps(x.pStudent);
-                setCwps(x.pStudent);
-            }
-        })
+    let clas= e.target.value;
+     let presentStudent= await fetch("http://localhost:8050/director/getattendance",{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({clas})
+      })
+     presentStudent=await presentStudent.json();
+     setCwps(presentStudent)
+     setCwps(presentStudent)
     }
 
     const submitAttendance = async () => {
@@ -331,7 +355,8 @@ export default function DirectorProfile() {
                                             <h5 className="mb-0 text-success fw-bold">{tpt}</h5>
                                         </div>
                                     </div>
-                                </div>                            </div>
+                                </div>
+                            </div>
 
                         </Accordion.Header>
                         <Accordion.Body>
@@ -409,7 +434,7 @@ export default function DirectorProfile() {
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" className=" me-3 bi bi-people-fill" viewBox="0 0 16 16">
                                                     <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5" />
                                                 </svg>
-                                                Class Wise Students
+                                                Class Students
                                             </Link>
                                             <div className="dfdr">
                                                 <select className='mt-1 s_l' onChange={filterStudent}>
@@ -483,12 +508,12 @@ export default function DirectorProfile() {
                     {/* ----add notice---------- */}
                     <div className="notice_input">
                         <h5 className="text-center text-white bg-primary p-2">Add Notice</h5>
-                        <div className="p-1">
+                        <div className="p-1 notice_input">
                             <b>Your Name </b>
                             <input type="text" placeholder="Add text here" onChange={(e) => setNoticeWriter(e.target.value)} />
                             <b>Notice</b>
                             <textarea name="" id="" cols="22" rows="4" onChange={(e) => setNotice(e.target.value)}></textarea>
-                            {notice?<button className="btn btn-primary" onClick={submitNotice}>Submit</button>:null}
+                            {notice ? <button className="btn btn-primary" onClick={submitNotice}>Submit</button> : null}
                         </div>
                     </div>
                     {/* -------notice board--- */}

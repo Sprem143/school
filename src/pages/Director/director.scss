@@ -159,6 +159,14 @@
     height: 250px;
     overflow-y: scroll;
 }
+.notice_input{
+    input{
+        width:14vw;
+    }
+    textarea{
+        width:14vw;
+    }
+}
  @media screen and (max-width:760px) {
     .tchr{
         flex-direction: column;

@@ -28,7 +28,6 @@ export default function DirectorLogin() {
         } else {
             setLoginError("Username or Password is wrong")
         }
-
     }
 
     return (

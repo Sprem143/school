@@ -50,11 +50,10 @@ const userSchema = new mongoose.Schema({
         type:String,
         require:true
     },
-    // creator: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'Director',
-    //     required: true
-    // },
+   attendance:{
+    type:[Object],
+    default:[{}]
+   }
 
 },{timestamps: true});
 

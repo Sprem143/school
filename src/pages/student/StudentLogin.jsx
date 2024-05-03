@@ -11,14 +11,19 @@ export default function StudentLogin() {
     const [login, setLogin] = useState(false);
     const [student, setStudent] = useState('');
     const [addedNotice, setAddedNotice] = useState([{}]);
+    const [month, setMonth] = useState('')
+    const [year, setYear] = useState('')
 
     useEffect(() => {
-        handleLogin();
-        if (document.cookie.split("=")[0] == "student") {
-            console.log(document.cookie.split("=")[0])
+
+        if (document.cookie && document.cookie.split("=")[0] == "student") {
             setLogin(true);
+            setLogin(true);
+        } else {
+            handleLogin();
+            getnotice();
+
         }
-        getnotice();
     }, [])
 
     const getnotice = async () => {
@@ -29,7 +34,6 @@ export default function StudentLogin() {
         result = await result.json();
         setAddedNotice(result);
         setAddedNotice(result);
-        console.log(addedNotice)
     }
 
     const diplayalert = () => {
@@ -37,24 +41,74 @@ export default function StudentLogin() {
     }
     const handleLogin = async () => {
 
-        let result = await fetch("http://localhost:8050/student/signin", {
-            method: "POST",
-            body: JSON.stringify({ email, password }),
-            headers: { 'Content-Type': 'application/json' }
-        });
-        result = await result.json();
-        if (result.token) {
-            const value = result.token;
-            let role = `student`;
-            const cookieValue = `${role}=${value};  path=/`;
-            document.cookie = cookieValue;
-            setLogin(true);
-            setStudent(result.student);
-            console.log(result.student);
+        if (document.cookie.split("=")[0] != "student") {
+            let result = await fetch("http://localhost:8050/student/signin", {
+                method: "POST",
+                body: JSON.stringify({ email, password }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            result = await result.json();
+            console.log(result)
+            if (result.token) {
+                const value = result.token;
+                let role = `student`;
+                const cookieValue = `${role}=${value};  path=/`;
+                document.cookie = cookieValue;
+                setLogin(true);
+                setStudent(result.student);
+                const dt = result.student.attendance
+                var year = dt[1][0].slice(0, 4);
+                setYear(year)
+                for (let i = 1; i < dt.length; i++) {
+                    switch (dt[1][0].slice(4)) {
+                        case '1':
+                            setMonth('January')
+                            break;
+                        case '2':
+                            setMonth('February')
+                            break;
+                        case '3':
+                            setMonth('March')
+                            break;
+                        case '4':
+                            setMonth('April')
+                            break;
+                        case '5':
+                            setMonth('May')
+                            break;
+                        case '6':
+                            setMonth('June')
+                            break;
+                        case '7':
+                            setMonth('July')
+                            break;
+                        case '8':
+                            setMonth('August')
+                            break;
+                            case '9':
+                            setMonth('September')
+                            break;
+                            case '10':
+                            setMonth('October')
+                            break;
+                            case '11':
+                            setMonth('November')
+                            break;
+                            case '12':
+                            setMonth('December')
+                            break;
+                        default:
+                            setMonth("this")
+                            break;
+                    }
+                }
+                setYear(year)
+            } else {
+                setLoginError("Username or Password is wrong")
+            }
         } else {
-            setLoginError("Username or Password is wrong")
+            setLogin(true);
         }
-
     }
     const logoutstudent = () => {
         Cookies.remove("student");
@@ -71,7 +125,6 @@ export default function StudentLogin() {
                             <h3><b className="text-white">{student.username}</b></h3>
                             <h6 className="text-white">Role:Student</h6>
                         </div>
-
                         <button className="btn btn-primary logout_btn" onClick={logoutstudent}>Log out</button>
                     </div>
                     <div className="student_profile dfdc jcac w-100">
@@ -88,6 +141,7 @@ export default function StudentLogin() {
                                         <b className="fw-bold">Address: </b>
                                         <b className="fw-bold">Date of Birth: </b>
                                         <b className="fw-bold">Admission Date: </b>
+                                        <b className="fw-bold">Attendance in {month}/{year}: </b>
                                     </div>
                                     <div className="std_row">
                                         <p>{student.standard}</p>
@@ -98,6 +152,7 @@ export default function StudentLogin() {
                                         <p>{student.address}</p>
                                         <p>{student.dob}</p>
                                         <p>{student.createdAt.slice(0, 10)}</p>
+                                        <p>{student.attendance[1][1].length} day</p>
                                     </div>
                                 </div>
                                 <div className="notice">
@@ -110,10 +165,7 @@ export default function StudentLogin() {
                                         }
                                     </ol>
                                 </div>
-
                             </div>
-
-
                         </div>
                     </div>
                 </div>

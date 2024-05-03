@@ -3,32 +3,66 @@ const Student = require('../student/student.model');
 const Teacher = require('../teacher/teacher.model');
 const Attendence = require('../student/studentAttendence.model')
 const jwt = require('jsonwebtoken');
+const { generateToken } = require('../auth.jsx');
+const { verifyToken } = require('../auth.jsx');
 require('dotenv').config();
 
-const generateToken = (payload) => {
-    try {
-      const token = jwt.sign(payload,'school', { expiresIn: '1h' });
-      return token;
-    } catch (error) {
-      console.error('Error generating token:', error);
-      throw new Error('Error generating token');
-    }
-  };
-  
+exports.verifytoken=async(req,res)=>{
+    let token= req.body.token;
+    console.log(token)
+let result= verifyToken(token)
+}
 
+// ---------set attendance-------------
+exports.setattendance = async (req, res) => {
+    try {
+        const { email, yearmonth, date } = req.body;
+        let student = await Student.findOne({ email });
+        let arr = student.attendance;
+        // if year and month exist--------------
+        for (let i = 0; i < arr.length; i++) {
+            console.log(i);
+            if (arr[i][0] == yearmonth) {
+                arr[i][1].push(date);
+                // ------update value-------
+                let filter = { email: email };
+                let update = { attendance: arr }
+                var re = await Student.findOneAndUpdate(filter, update);
+                console.log(re);
+            }
+            if (i == arr.length - 1 && !re) {
+
+                console.log("second block run")
+                let attendance = [yearmonth, [date]]
+                await Student.findOneAndUpdate(
+                    { "email": email },
+                    {
+                        $push: { attendance: attendance },
+                    },
+                    { returnNewDocument: true }
+                )
+            }
+
+        }
+        res.send("successful")
+    } catch (err) {
+        console.log(err);
+        res.status(201).json({ message: "Internal Error" })
+    }
+}
 
 // ----get total present student
 exports.noofpresentstudent = async (req, res) => {
-   try{
-    const { date } = req.body;
-    let result = await Attendence.where({ dateNow: date }).find();
-    let tresult = await Teacher.find();
-       const r = {s:result, t:tresult};
-    //    console.log(r)
-   res.status(200).json(r);
-   }catch(err){
-    res.status(201).json({message:"Internal error while fetching data"});
-   }
+    try {
+        const { date } = req.body;
+        let result = await Attendence.where({ dateNow: date }).find();
+        let tresult = await Teacher.find();
+        const r = { s: result, t: tresult };
+        //    console.log(r)
+        res.status(200).json(r);
+    } catch (err) {
+        res.status(201).json({ message: "Internal error while fetching data" });
+    }
 }
 
 exports.attendence = async (req, res) => {
@@ -65,7 +99,7 @@ exports.signin = async (req, res) => {
         let director = await Director.findOne({ email });
         if (director) {
             if (password == director.password) {
-                const token = generateToken({director})
+                const token = generateToken({ director })
                 console.log(token);
 
                 res.status(200).json({ token: token });
@@ -96,7 +130,7 @@ exports.addteacher = async (req, res) => {
     try {
         const newTeacher = new Teacher(req.body);
         await newTeacher.save();
-        res.status(200).json({ message: "Teacher added successfully",status:200 })
+        res.status(200).json({ message: "Teacher added successfully", status: 200 })
     } catch (err) {
         res.status(201).json({ message: "Error while adding teacher" });
         console.log(err);
@@ -159,6 +193,18 @@ exports.getclassstudent = async (req, res) => {
     }
 }
 
+exports.getattendance = async (req, res) => {
+    try {
+        const { clas } = req.body;
+        console.log(clas)
+        const result = await Attendence.findOne({ attendenceClass: clas });
+        res.status(200).json(result.pStudent)
+    } catch (err) {
+
+    }
+
+}
+
 exports.getoneteacher = async (req, res) => {
     const email = req.body.email;
     try {
@@ -202,7 +248,6 @@ exports.searchstudent = async (req, res) => {
                 $regex: ss, $options: 'i'
             }
         })
-
         if (students.length === 0) {
             return res.status(404).json({ message: 'No Student found' });
         }
