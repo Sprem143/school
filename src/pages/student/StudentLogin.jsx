@@ -12,22 +12,92 @@ export default function StudentLogin() {
     const [student, setStudent] = useState('');
     const [addedNotice, setAddedNotice] = useState([{}]);
     const [month, setMonth] = useState('')
-    const [year, setYear] = useState('')
+    const [year, setYear] = useState('');
+    const [attendance, setAttendance]=useState(0);
+    const[ day,setDay]=useState([]);
 
     useEffect(() => {
-
-        if (document.cookie && document.cookie.split("=")[0] == "student") {
-            setLogin(true);
-            setLogin(true);
-        } else {
-            handleLogin();
-            getnotice();
-
-        }
+        
+        const cookieValue = document.cookie.split(';')
+        let t= cookieValue.filter((row)=> row.includes('student'));
+      if(t.length!=1){ 
+        setLogin(false)
+        setLogin(false)
+    }else{
+        let token =t[0].split("=")[1]
+        verifyToken(token)
+        getnotice();
+    }
     }, [])
-
+    const verifyToken = async (token) => {
+        let result = await fetch("https://school-backend-wz4q.onrender.com/student/verifytoken", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({token:token })
+        })
+        result = await result.json();
+        if (result.student.student) {
+            getnotice();
+            setLogin(true);
+            setLogin(true);
+            setStudent(result.student.student);
+            setStudent(result.student.student);
+            const dt = result.student.student.attendance;
+             setAttendance(dt[1][1].length)
+            var year = dt[1][0].slice(0, 4);
+            setYear(year)
+            for (let i = 1; i < dt.length; i++) {
+                switch (dt[1][0].slice(4)) {
+                    case '1':
+                        setMonth('January')
+                        break;
+                    case '2':
+                        setMonth('February')
+                        break;
+                    case '3':
+                        setMonth('March')
+                        break;
+                    case '4':
+                        setMonth('April')
+                        break;
+                    case '5':
+                        setMonth('May')
+                        break;
+                    case '6':
+                        setMonth('June')
+                        break;
+                    case '7':
+                        setMonth('July')
+                        break;
+                    case '8':
+                        setMonth('August')
+                        break;
+                    case '9':
+                        setMonth('September')
+                        break;
+                    case '10':
+                        setMonth('October')
+                        break;
+                    case '11':
+                        setMonth('November')
+                        break;
+                    case '12':
+                        setMonth('December')
+                        break;
+                    default:
+                        setMonth("this")
+                        break;
+                }
+            }
+            setYear(year)
+        }else{
+            setLogin(false);
+            setLogin(false);
+        }
+    }
+    
     const getnotice = async () => {
-        let result = await fetch("http://localhost:8050/notice/getnotice", {
+        let result = await fetch("https://school-backend-wz4q.onrender.com/notice/getnotice", {
             method: "GET",
             headers: { 'Content-Type': 'application/json' },
         })
@@ -40,15 +110,14 @@ export default function StudentLogin() {
         alert("Please contact Director or teacher to reset your password or username \n Mob- 7366943700 || Email- prem68265@gmail.com")
     }
     const handleLogin = async () => {
-
-        if (document.cookie.split("=")[0] != "student") {
-            let result = await fetch("http://localhost:8050/student/signin", {
+        if (login == false) {
+            let result = await fetch("https://school-backend-wz4q.onrender.com/student/signin", {
                 method: "POST",
                 body: JSON.stringify({ email, password }),
                 headers: { 'Content-Type': 'application/json' }
             });
             result = await result.json();
-            console.log(result)
+            console.log(result);
             if (result.token) {
                 const value = result.token;
                 let role = `student`;
@@ -56,7 +125,13 @@ export default function StudentLogin() {
                 document.cookie = cookieValue;
                 setLogin(true);
                 setStudent(result.student);
-                const dt = result.student.attendance
+                const dt = result.student.attendance;
+                // ---day by day attendance
+             let day= dt[1][1];
+             setDay(day);
+
+
+                setAttendance(result.student.attendance[1][1].length)
                 var year = dt[1][0].slice(0, 4);
                 setYear(year)
                 for (let i = 1; i < dt.length; i++) {
@@ -85,16 +160,16 @@ export default function StudentLogin() {
                         case '8':
                             setMonth('August')
                             break;
-                            case '9':
+                        case '9':
                             setMonth('September')
                             break;
-                            case '10':
+                        case '10':
                             setMonth('October')
                             break;
-                            case '11':
+                        case '11':
                             setMonth('November')
                             break;
-                            case '12':
+                        case '12':
                             setMonth('December')
                             break;
                         default:
@@ -142,6 +217,8 @@ export default function StudentLogin() {
                                         <b className="fw-bold">Date of Birth: </b>
                                         <b className="fw-bold">Admission Date: </b>
                                         <b className="fw-bold">Attendance in {month}/{year}: </b>
+                                        <b className="fw-bold">Present Days: {month}/{year}: </b>
+
                                     </div>
                                     <div className="std_row">
                                         <p>{student.standard}</p>
@@ -152,7 +229,8 @@ export default function StudentLogin() {
                                         <p>{student.address}</p>
                                         <p>{student.dob}</p>
                                         <p>{student.createdAt.slice(0, 10)}</p>
-                                        <p>{student.attendance[1][1].length} day</p>
+                                        <p>{attendance} day</p>
+                                        
                                     </div>
                                 </div>
                                 <div className="notice">

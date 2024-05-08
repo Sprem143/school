@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import './director.scss'
 import Form from 'react-bootstrap/Form';
 import 'react-multi-carousel/lib/styles.css';
-import { verifyToken } from "../../../backend/src/features/auth";
 
 export default function DirectorProfile() {
 
@@ -63,7 +62,7 @@ export default function DirectorProfile() {
         let d = new Date();
         const date = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear();
         setDate(date);
-        let result = await fetch('http://localhost:8050/notice/addnotice', {
+        let result = await fetch('https://school-backend-wz4q.onrender.com/notice/addnotice', {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ noticeWriter, notice, date })
@@ -78,26 +77,38 @@ export default function DirectorProfile() {
     }
 
     useEffect(() => {
-        let token= document.cookie.split("=")[1]
-        verifyToken(token)
+
+       if(document.cookie){
+        const cookieValue = document.cookie
+        
+    // console.log(cookieValue[1].split("=")[0]);
+    // let t = cookieValue.filter((row) => row.includes('Director'));
+    // console.log(t);
+    if (!cookieValue) { navigate('/director/login') }
+    let token = cookieValue.split("=")[1]
+    verifyToken(token)
+       }else{
+        navigate('/director/login')
+       }
         noofpresentstudent();
         getnotice();
     }, [])
-  const verifyToken=async(token)=>{
- let result= await fetch("http://localhost:8050/director/verifytoken",{
-    method:"POST",
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({token:token})
- })
- result= await result.json();
- if(result.message=="false"){
-navigate('/director/login');
- }
-
-  }
+    const verifyToken = async (token) => {
+        let key = token.split(' ')[0];
+        let result = await fetch("https://school-backend-wz4q.onrender.com/director/verifytoken", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: key })
+        })
+        result = await result.json();
+        console.log(result)
+        if (result == false) {
+            navigate('/director/login');
+        }
+    }
     const getnotice = async () => {
         // setAddedNotice([]);
-        let result = await fetch("http://localhost:8050/notice/getnotice", {
+        let result = await fetch("https://school-backend-wz4q.onrender.com/notice/getnotice", {
             method: "GET",
             headers: { 'Content-Type': 'application/json' },
         })
@@ -111,7 +122,7 @@ navigate('/director/login');
         let d = new Date();
         const date = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear();
 
-        let result = await fetch("http://localhost:8050/director/noofpresentstudent", {
+        let result = await fetch("https://school-backend-wz4q.onrender.com/director/noofpresentstudent", {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ date })
@@ -128,20 +139,20 @@ navigate('/director/login');
 
     }
 
-    const setPresent =async (ps,email) => {
+    const setPresent = async (ps, email) => {
         setShowButton(true);
-       let d = new Date();
-       const date= d.getDate();
-       const yearmonth= `${d.getFullYear()}${d.getMonth()}`
-       console.log(date, yearmonth)
-        let result= await fetch("http://localhost:8050/director/setattendance",{
-            method:"POST",
-            headers:{'Content-Type':"application/json"},
-            body:JSON.stringify({email,yearmonth,date})
+        let d = new Date();
+        const date = d.getDate();
+        const yearmonth = `${d.getFullYear()}${d.getMonth()}`
+        console.log(date, yearmonth)
+        let result = await fetch("https://school-backend-wz4q.onrender.com/director/setattendance", {
+            method: "POST",
+            headers: { 'Content-Type': "application/json" },
+            body: JSON.stringify({ email, yearmonth, date })
         })
 
         if (!pStudent) {
-            let student = { username: ps, email: email};
+            let student = { username: ps, email: email };
             setPStudent(student);
         }
         let newStd = { username: ps, email: email }
@@ -150,15 +161,15 @@ navigate('/director/login');
 
     const getAttendence = async (e) => {
         setCwps([]);
-    let clas= e.target.value;
-     let presentStudent= await fetch("http://localhost:8050/director/getattendance",{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({clas})
-      })
-     presentStudent=await presentStudent.json();
-     setCwps(presentStudent)
-     setCwps(presentStudent)
+        let clas = e.target.value;
+        let presentStudent = await fetch("https://school-backend-wz4q.onrender.com/director/getattendance", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ clas })
+        })
+        presentStudent = await presentStudent.json();
+        setCwps(presentStudent)
+        setCwps(presentStudent)
     }
 
     const submitAttendance = async () => {
@@ -166,7 +177,7 @@ navigate('/director/login');
         let date = new Date();
         const dateNow = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
         const totalStudent = pStudent.length;
-        let result = await fetch("http://localhost:8050/director/attendence", {
+        let result = await fetch("https://school-backend-wz4q.onrender.com/director/attendence", {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ pStudent, attendenceClass, dateNow, totalStudent })
@@ -183,7 +194,7 @@ navigate('/director/login');
     };
     const filterStudent = async (event) => {
         let cls = event.target.value;
-        let result = await fetch("http://localhost:8050/director/getclassstudent", {
+        let result = await fetch("https://school-backend-wz4q.onrender.com/director/getclassstudent", {
             method: "POST",
             body: JSON.stringify({ cls }),
             headers: { 'Content-Type': 'application/json' }
@@ -195,7 +206,7 @@ navigate('/director/login');
     const getStudent = async (event) => {
         let cls = event.target.value;
         setac(cls);
-        let result = await fetch("http://localhost:8050/director/getclassstudent", {
+        let result = await fetch("https://school-backend-wz4q.onrender.com/director/getclassstudent", {
             method: "POST",
             body: JSON.stringify({ cls }),
             headers: { 'Content-Type': 'application/json' }
@@ -205,7 +216,7 @@ navigate('/director/login');
     };
 
     const getStudents = async () => {
-        let students = await fetch('http://localhost:8050/director/getAllStudents', {
+        let students = await fetch('https://school-backend-wz4q.onrender.com/director/getAllStudents', {
             method: "GET",
             headers: { 'Content-type': 'application/json' }
         })
@@ -215,7 +226,7 @@ navigate('/director/login');
     // -----get teachers list
 
     const getteachers = async () => {
-        let teachers = await fetch('http://localhost:8050/director/getallteachers', {
+        let teachers = await fetch('https://school-backend-wz4q.onrender.com/director/getallteachers', {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         })
@@ -224,7 +235,7 @@ navigate('/director/login');
     }
 
     const searchTeacher = async () => {
-        let tresult = await fetch("http://localhost:8050/director/searchteacher", {
+        let tresult = await fetch("https://school-backend-wz4q.onrender.com/director/searchteacher", {
             method: "POST",
             body: JSON.stringify({ st }),
             headers: { 'Content-Type': "application/json" }
@@ -238,7 +249,7 @@ navigate('/director/login');
     }
 
     const searchstudent = async () => {
-        let sresult = await fetch("http://localhost:8050/director/searchstudent", {
+        let sresult = await fetch("https://school-backend-wz4q.onrender.com/director/searchstudent", {
             method: "POST",
             body: JSON.stringify({ ss }),
             headers: { 'Content-Type': "application/json" }
@@ -260,7 +271,7 @@ navigate('/director/login');
     const handleShow = async (em) => {
         setStd("");
         setShow(true);
-        let std = await fetch('http://localhost:8050/director/getonestudent', {
+        let std = await fetch('https://school-backend-wz4q.onrender.com/director/getonestudent', {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: em })
@@ -273,7 +284,7 @@ navigate('/director/login');
     const handleUpdate = async (stdupdate) => {
         setShow(false);
         let Email = stdupdate.email;
-        let updatedstd = await fetch("http://localhost:8050/director/updatestudent", {
+        let updatedstd = await fetch("https://school-backend-wz4q.onrender.com/director/updatestudent", {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ Email, stdName, stdEmail, stdMobile, stdDob, stdFatherName, stdClass, stdGender, stdAddress })
@@ -287,7 +298,7 @@ navigate('/director/login');
     // ----------teacher update operation---------------
     const handletShow = async (t) => {
         setShow(true);
-        let tchr = await fetch('http://localhost:8050/director/getoneteacher', {
+        let tchr = await fetch('https://school-backend-wz4q.onrender.com/director/getoneteacher', {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: t })
@@ -299,7 +310,7 @@ navigate('/director/login');
     const handletUpdate = async (stdupdate) => {
         setShow(false);
         let Email = stdupdate.email;
-        let updatedstd = await fetch("http://localhost:8050/director/updateteacher", {
+        let updatedstd = await fetch("https://school-backend-wz4q.onrender.com/director/updateteacher", {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ Email, tName, tEmail, tMobile, tFatherName, tSubject, tGender, tAddress, tSalary })
@@ -311,7 +322,7 @@ navigate('/director/login');
     }
 
     const deleteStudent = async (email) => {
-        let status = await fetch('http://localhost:8050/director/removestudent', {
+        let status = await fetch('https://school-backend-wz4q.onrender.com/director/removestudent', {
             method: "DELETE",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: email })

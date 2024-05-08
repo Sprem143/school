@@ -7,10 +7,10 @@ const { generateToken } = require('../auth.jsx');
 const { verifyToken } = require('../auth.jsx');
 require('dotenv').config();
 
-exports.verifytoken=async(req,res)=>{
-    let token= req.body.token;
-    console.log(token)
-let result= verifyToken(token)
+exports.verifytoken = async (req, res) => {
+    let token = req.body.token;
+    let result = verifyToken(token);
+    res.status(200).send(result);
 }
 
 // ---------set attendance-------------

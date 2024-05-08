@@ -22,6 +22,6 @@ router.post('/attendence',directorController.attendence);
 router.post('/noofpresentstudent',directorController.noofpresentstudent);
 router.post('/getattendance',directorController.getattendance);
 router.post('/setattendance', directorController.setattendance)
-
+router.post('/verifytoken', directorController.verifytoken)
 
 module.exports= router;

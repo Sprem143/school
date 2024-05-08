@@ -1,29 +1,25 @@
 const Student = require('./student.model');
-const jwt = require('jsonwebtoken');
-const secret_key = 'prem_7366';
+const { generateToken } = require('../auth.jsx');
+const { verifyStudent } = require('../auth.jsx');
 exports.signin = async (req, res) => {
-    const { email, password } = req.body;
-
-    try {
-        const student = await Student.findOne({ email });
-
-        if (student) {
-            if (password == student.password) {
-                const token = jwt.sign({ student }, secret_key, { expiresIn: "1h" })
-                console.log(token)
-
-                res.status(200).json({ token: token, student: student });
+        const { email, password } = req.body;
+        try {
+            let student = await Student.findOne({ email });
+            if (student) {
+                if (password == student.password) {
+                    const token = generateToken({ student })
+    
+                    res.status(200).json({ token: token, student:student });
+                } else {
+                    res.status(404).json({ message: 'Incorrect password' });
+                }
             } else {
-                res.json({ message: "Incorrect password" })
+                res.status(404).json({ message: 'Student not found' });
             }
-        } else {
-            res.status(404).json({ message: "Student not found" })
+        } catch (err) {
+            res.status(500).json({ message: 'Internal Server Error' });
         }
-    } catch (err) {
-
     }
-}
-
 
 // ------log out function---------
 exports.logout = async (req, res) => {
@@ -38,5 +34,16 @@ exports.logout = async (req, res) => {
         });
     } catch (err) {
         res.status(201).json({ message: "Error while loging out director" })
+    }
+}
+
+exports.verifytoken=async(req,res)=>{
+    try{
+         let token= req.body.token;
+         let student= verifyStudent(token);
+
+         res.status(200).json({student})
+    }catch{
+
     }
 }

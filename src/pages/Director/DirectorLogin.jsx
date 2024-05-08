@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 
@@ -7,13 +7,36 @@ export default function DirectorLogin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loginError, setLoginError] = useState();
+
+    // check if there is cookie already exist-----
+
+    useEffect(() => {
+       if(document.cookie.split("=")[0]=="Director"){
+        let token = document.cookie.split("=")[1]
+        verifyToken(token)
+       }
+       
+    }, [])
+    const verifyToken = async (token) => {
+        let result = await fetch("https://school-backend-wz4q.onrender.com/director/verifytoken", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: token })
+        })
+        result = await result.json();
+        if (result == true) {
+            navigate('/director/profile');
+        }
+    }
+
+
      
     const diplayalert = ()=>{
         alert("Please contact admin to reset your password or username \n Mob- 7366943700 || Email- prem68265@gmail.com")
     }
     const handleLogin = async () => {
 
-        let result = await fetch("http://localhost:8050/director/signin", {
+        let result = await fetch("https://school-backend-wz4q.onrender.com/director/signin", {
             method: "POST",
             body: JSON.stringify({ email, password }),
             headers: { 'Content-Type': 'application/json' }
