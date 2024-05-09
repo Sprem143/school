@@ -21,7 +21,8 @@ export default function DirectorLogin() {
         let result = await fetch("https://schoolbackend-prem-kumars-projects.vercel.app/director/verifytoken", {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: token })
+            body: JSON.stringify({ token: token }),
+            mode:"no-cors"
         })
         result = await result.json();
         if (result == true) {
