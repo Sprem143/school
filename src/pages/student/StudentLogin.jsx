@@ -30,7 +30,7 @@ export default function StudentLogin() {
     }
     }, [])
     const verifyToken = async (token) => {
-        let result = await fetch("https://school-backend-wz4q.onrender.com/student/verifytoken", {
+        let result = await fetch("https://schoolbackend-prem-kumars-projects.vercel.app/student/verifytoken", {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({token:token })
@@ -97,7 +97,7 @@ export default function StudentLogin() {
     }
     
     const getnotice = async () => {
-        let result = await fetch("https://school-backend-wz4q.onrender.com/notice/getnotice", {
+        let result = await fetch("https://schoolbackend-prem-kumars-projects.vercel.app/notice/getnotice", {
             method: "GET",
             headers: { 'Content-Type': 'application/json' },
         })
@@ -111,7 +111,7 @@ export default function StudentLogin() {
     }
     const handleLogin = async () => {
         if (login == false) {
-            let result = await fetch("https://school-backend-wz4q.onrender.com/student/signin", {
+            let result = await fetch("https://schoolbackend-prem-kumars-projects.vercel.app/student/signin", {
                 method: "POST",
                 body: JSON.stringify({ email, password }),
                 headers: { 'Content-Type': 'application/json' }

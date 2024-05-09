@@ -27,7 +27,7 @@ export default function StudentLogin() {
             }
 
     const getnotice = async () => {
-        let result = await fetch("https://school-backend-wz4q.onrender.com/notice/getnotice", {
+        let result = await fetch("https://schoolbackend-prem-kumars-projects.vercel.app/notice/getnotice", {
             method: "GET",
             headers: { 'Content-Type': 'application/json' },
         })
@@ -39,7 +39,7 @@ export default function StudentLogin() {
 
     const handleLogin = async () => {
 
-        let result = await fetch("https://school-backend-wz4q.onrender.com/teacher/signin", {
+        let result = await fetch("https://schoolbackend-prem-kumars-projects.vercel.app/teacher/signin", {
             method: "POST",
             body: JSON.stringify({ email, password }),
             headers: { 'Content-Type': 'application/json' }
