@@ -48,7 +48,7 @@ export default function TeacherSignup() {
 
     const handleRegistration = async () => {
         if (Cookies.get('Director')) {
-            let newTeacher = await fetch('https://schoolbackend-prem-kumars-projects.vercel.app/director/addteacher', {
+            let newTeacher = await fetch('https://school-backend-wz4q.onrender.com/director/addteacher', {
                 method: "POST",
                 headers: { 'Content-type': 'application/json' },
                 body: JSON.stringify({ username, fatherName, email, mobile, gender, qualification, subject, salary, address,image, password,cookie })

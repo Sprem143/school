@@ -18,7 +18,7 @@ export default function DirectorLogin() {
        
     }, [])
     const verifyToken = async (token) => {
-        let result = await fetch("https://schoolbackend-prem-kumars-projects.vercel.app/director/verifytoken", {
+        let result = await fetch("https://school-backend-wz4q.onrender.com/director/verifytoken", {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token: token }),
@@ -37,7 +37,7 @@ export default function DirectorLogin() {
     }
     const handleLogin = async () => {
 
-        let result = await fetch("https://schoolbackend-prem-kumars-projects.vercel.app/director/signin", {
+        let result = await fetch("https://school-backend-wz4q.onrender.com/director/signin", {
             method: "POST",
             body: JSON.stringify({ email, password }),
             headers: { 'Content-Type': 'application/json' }
