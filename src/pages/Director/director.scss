@@ -190,6 +190,24 @@
             }
         }
     }
+    
+    .notice_input, .notice_output {
+        width:90vw;
+        margin-bottom: 20px;
+        input{
+            width: 85vw;
+        }
+        textarea{
+            width:85vw;
+        }
+    }
+    
+
+.director_body {
+    align-items: center;
+    justify-content: space-evenly;
+    flex-direction: column;
+}
     .accordion-body{
         padding: 0 !important;
     }
