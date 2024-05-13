@@ -77,19 +77,14 @@ export default function DirectorProfile() {
     }
 
     useEffect(() => {
-
-       if(document.cookie){
-        const cookieValue = document.cookie
-        
-    // console.log(cookieValue[1].split("=")[0]);
-    // let t = cookieValue.filter((row) => row.includes('Director'));
-    // console.log(t);
-    if (!cookieValue) { navigate('/director/login') }
-    let token = cookieValue.split("=")[1]
-    verifyToken(token)
-       }else{
-        navigate('/director/login')
-       }
+        if (document.cookie) {
+            const cookieValue = document.cookie
+            if (!cookieValue) { navigate('/director/login') }
+            let token = cookieValue.split("=")[1]
+            verifyToken(token)
+        } else {
+            navigate('/director/login')
+        }
         noofpresentstudent();
         getnotice();
     }, [])

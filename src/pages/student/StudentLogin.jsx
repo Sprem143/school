@@ -13,27 +13,26 @@ export default function StudentLogin() {
     const [addedNotice, setAddedNotice] = useState([{}]);
     const [month, setMonth] = useState('')
     const [year, setYear] = useState('');
-    const [attendance, setAttendance]=useState(0);
-    const[ day,setDay]=useState([]);
+    const [attendance, setAttendance] = useState(0);
+    const [day, setDay] = useState([]);
 
     useEffect(() => {
-        
-        const cookieValue = document.cookie.split(';')
-        let t= cookieValue.filter((row)=> row.includes('student'));
-      if(t.length!=1){ 
-        setLogin(false)
-        setLogin(false)
-    }else{
-        let token =t[0].split("=")[1]
-        verifyToken(token)
         getnotice();
-    }
+        const cookieValue = document.cookie.split(';')
+        let t = cookieValue.filter((row) => row.includes('student'));
+        if (t.length != 1) {
+            setLogin(false)
+        } else {
+            let token = t[0].split("=")[1]
+            verifyToken(token)
+            getnotice();
+        }
     }, [])
     const verifyToken = async (token) => {
-        let result = await fetch("https://school-backend-wz4q.onrender.com/student/verifytoken", {
+        let result = await fetch("http://localhost:8050/student/verifytoken", {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({token:token })
+            body: JSON.stringify({ token: token })
         })
         result = await result.json();
         if (result.student.student) {
@@ -43,7 +42,7 @@ export default function StudentLogin() {
             setStudent(result.student.student);
             setStudent(result.student.student);
             const dt = result.student.student.attendance;
-             setAttendance(dt[1][1].length)
+            setAttendance(dt[1][1].length)
             var year = dt[1][0].slice(0, 4);
             setYear(year)
             for (let i = 1; i < dt.length; i++) {
@@ -90,20 +89,20 @@ export default function StudentLogin() {
                 }
             }
             setYear(year)
-        }else{
+        } else {
             setLogin(false);
             setLogin(false);
         }
     }
-    
+
     const getnotice = async () => {
-        let result = await fetch("https://school-backend-wz4q.onrender.com/notice/getnotice", {
+        let result = await fetch("http://localhost:8050/notice/getnotice", {
             method: "GET",
             headers: { 'Content-Type': 'application/json' },
         })
         result = await result.json();
         setAddedNotice(result);
-        setAddedNotice(result);
+        alert(addedNotice[0])
     }
 
     const diplayalert = () => {
@@ -111,7 +110,7 @@ export default function StudentLogin() {
     }
     const handleLogin = async () => {
         if (login == false) {
-            let result = await fetch("https://school-backend-wz4q.onrender.com/student/signin", {
+            let result = await fetch("http://localhost:8050/student/signin", {
                 method: "POST",
                 body: JSON.stringify({ email, password }),
                 headers: { 'Content-Type': 'application/json' }
@@ -127,8 +126,8 @@ export default function StudentLogin() {
                 setStudent(result.student);
                 const dt = result.student.attendance;
                 // ---day by day attendance
-             let day= dt[1][1];
-             setDay(day);
+                let day = dt[1][1];
+                setDay(day);
 
 
                 setAttendance(result.student.attendance[1][1].length)
@@ -230,7 +229,7 @@ export default function StudentLogin() {
                                         <p>{student.dob}</p>
                                         <p>{student.createdAt.slice(0, 10)}</p>
                                         <p>{attendance} day</p>
-                                        
+
                                     </div>
                                 </div>
                                 <div className="notice">
@@ -276,11 +275,7 @@ export default function StudentLogin() {
 
                     </div>
                 </div>
-
-
             }
-
-
         </>
     )
 }
