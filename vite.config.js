@@ -8,6 +8,6 @@ export default defineConfig({
 server: {
 host: true,
 strictPort: true,
-port:"https://school-backend-wz4q.onrender.com",
+// port:"https://school-backend-wz4q.onrender.com",
 }
 })
