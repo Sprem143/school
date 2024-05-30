@@ -47,7 +47,7 @@ export default function DirectorProfile() {
     const [showButton, setShowButton] = useState(false)
     const [attendenceClass, setac] = useState('');
     const [totalPresentStudent, settps] = useState(0);
-    const [psList, setPSList] = useState([]);
+    const [psList, setPSList] = useState([{}]);
     const [cwps, setCwps] = useState([]);
     const [aClass, setaCls] = useState('');
     const [tpt, settpt] = useState(0);
@@ -56,14 +56,14 @@ export default function DirectorProfile() {
     const [noticeWriter, setNoticeWriter] = useState('');
     const [addedNotice, setAddedNotice] = useState([{}]);
     const [date, setDate] = useState('');
-    const[ClassOfAttendance,setClassOfAttendance]= useState("")
+    const [ClassOfAttendance, setClassOfAttendance] = useState("")
 
 
     const submitNotice = async () => {
         let d = new Date();
         const date = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear();
         setDate(date);
-        let result = await fetch('https://school-backend-wz4q.onrender.com/notice/addnotice', {
+        let result = await fetch('http://localhost:8050/notice/addnotice', {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ noticeWriter, notice, date })
@@ -79,20 +79,20 @@ export default function DirectorProfile() {
 
     useEffect(() => {
 
-       if(document.cookie){
-        const cookieValue = document.cookie
-    if (!cookieValue) { navigate('/director/login') }
-    let token = cookieValue.split("=")[1]
-    verifyToken(token)
-       }else{
-        navigate('/director/login')
-       }
+        if (document.cookie) {
+            const cookieValue = document.cookie
+            if (!cookieValue) { navigate('/director/login') }
+            let token = cookieValue.split("=")[1]
+            verifyToken(token)
+        } else {
+            navigate('/director/login')
+        }
         noofpresentstudent();
         getnotice();
     }, [])
     const verifyToken = async (token) => {
         let key = token.split(' ')[0];
-        let result = await fetch("https://school-backend-wz4q.onrender.com/director/verifytoken", {
+        let result = await fetch("http://localhost:8050/director/verifytoken", {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token: key })
@@ -104,7 +104,7 @@ export default function DirectorProfile() {
         }
     }
     const getnotice = async () => {
-        let result = await fetch("https://school-backend-wz4q.onrender.com/notice/getnotice", {
+        let result = await fetch("http://localhost:8050/notice/getnotice", {
             method: "GET",
             headers: { 'Content-Type': 'application/json' },
         })
@@ -118,7 +118,7 @@ export default function DirectorProfile() {
         let d = new Date();
         const date = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear();
 
-        let result = await fetch("https://school-backend-wz4q.onrender.com/director/noofpresentstudent", {
+        let result = await fetch("http://localhost:8050/director/noofpresentstudent", {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ date })
@@ -139,17 +139,16 @@ export default function DirectorProfile() {
         setShowButton(true);
         let d = new Date();
         const date = d.getDate();
-        const yearmonth = `${d.getFullYear()}${d.getMonth()}`
-        console.log(date, yearmonth)
-        let result = await fetch("https://school-backend-wz4q.onrender.com/director/setattendance", {
+        const yearmonth = `${d.getFullYear()}${d.getMonth() + 1}`
+        let result = await fetch("http://localhost:8050/director/setattendance", {
             method: "POST",
             headers: { 'Content-Type': "application/json" },
             body: JSON.stringify({ email, yearmonth, date })
         })
-
-        if (!pStudent) {
-            let student = { username: ps, email: email };
-            setPStudent(student);
+        result = await result.json();
+        alert(result.message)
+        if (result.message==="Attendance already submitted") {
+          setStudentArray([]);
         }
         let newStd = { username: ps, email: email }
         pStudent.unshift(newStd);
@@ -159,7 +158,7 @@ export default function DirectorProfile() {
         setCwps([]);
         let clas = e.target.value;
         setClassOfAttendance(clas)
-        let presentStudent = await fetch("https://school-backend-wz4q.onrender.com/director/getattendance", {
+        let presentStudent = await fetch("http://localhost:8050/director/getattendance", {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ clas })
@@ -172,9 +171,10 @@ export default function DirectorProfile() {
     const submitAttendance = async () => {
         //    alert(pStudent.length);
         let date = new Date();
-        const dateNow = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
+        const dateNow = `${date.getDate()}/${parseInt(date.getMonth()) + parseInt(1)}/${date.getFullYear()}`;
         const totalStudent = pStudent.length;
-        let result = await fetch("https://school-backend-wz4q.onrender.com/director/attendence", {
+        console.log(pStudent, attendenceClass, dateNow, totalStudent)
+        let result = await fetch("http://localhost:8050/director/attendence", {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ pStudent, attendenceClass, dateNow, totalStudent })
@@ -184,8 +184,8 @@ export default function DirectorProfile() {
         setPStudent(result);
         setPStudent(result);
         noofpresentstudent();
-        document.getElementById('attendance').style.visibility='hidden'
-        document.getElementById('attendance').style.position='fixed'
+        document.getElementById('attendance').style.visibility = 'hidden'
+        document.getElementById('attendance').style.position = 'fixed'
     }
 
     const handleSelectChange = (event) => {
@@ -193,7 +193,7 @@ export default function DirectorProfile() {
     };
     const filterStudent = async (event) => {
         let cls = event.target.value;
-        let result = await fetch("https://school-backend-wz4q.onrender.com/director/getclassstudent", {
+        let result = await fetch("http://localhost:8050/director/getclassstudent", {
             method: "POST",
             body: JSON.stringify({ cls }),
             headers: { 'Content-Type': 'application/json' }
@@ -205,7 +205,7 @@ export default function DirectorProfile() {
     const getStudent = async (event) => {
         let cls = event.target.value;
         setac(cls);
-        let result = await fetch("https://school-backend-wz4q.onrender.com/director/getclassstudent", {
+        let result = await fetch("http://localhost:8050/director/getclassstudent", {
             method: "POST",
             body: JSON.stringify({ cls }),
             headers: { 'Content-Type': 'application/json' }
@@ -215,7 +215,7 @@ export default function DirectorProfile() {
     };
 
     const getStudents = async () => {
-        let students = await fetch('https://school-backend-wz4q.onrender.com/director/getAllStudents', {
+        let students = await fetch('http://localhost:8050/director/getAllStudents', {
             method: "GET",
             headers: { 'Content-type': 'application/json' }
         })
@@ -225,7 +225,7 @@ export default function DirectorProfile() {
     // -----get teachers list
 
     const getteachers = async () => {
-        let teachers = await fetch('https://school-backend-wz4q.onrender.com/director/getallteachers', {
+        let teachers = await fetch('http://localhost:8050/director/getallteachers', {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         })
@@ -234,7 +234,7 @@ export default function DirectorProfile() {
     }
 
     const searchTeacher = async () => {
-        let tresult = await fetch("https://school-backend-wz4q.onrender.com/director/searchteacher", {
+        let tresult = await fetch("http://localhost:8050/director/searchteacher", {
             method: "POST",
             body: JSON.stringify({ st }),
             headers: { 'Content-Type': "application/json" }
@@ -248,7 +248,7 @@ export default function DirectorProfile() {
     }
 
     const searchstudent = async () => {
-        let sresult = await fetch("https://school-backend-wz4q.onrender.com/director/searchstudent", {
+        let sresult = await fetch("http://localhost:8050/director/searchstudent", {
             method: "POST",
             body: JSON.stringify({ ss }),
             headers: { 'Content-Type': "application/json" }
@@ -270,7 +270,7 @@ export default function DirectorProfile() {
     const handleShow = async (em) => {
         setStd("");
         setShow(true);
-        let std = await fetch('https://school-backend-wz4q.onrender.com/director/getonestudent', {
+        let std = await fetch('http://localhost:8050/director/getonestudent', {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: em })
@@ -283,7 +283,7 @@ export default function DirectorProfile() {
     const handleUpdate = async (stdupdate) => {
         setShow(false);
         let Email = stdupdate.email;
-        let updatedstd = await fetch("https://school-backend-wz4q.onrender.com/director/updatestudent", {
+        let updatedstd = await fetch("http://localhost:8050/director/updatestudent", {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ Email, stdName, stdEmail, stdMobile, stdDob, stdFatherName, stdClass, stdGender, stdAddress })
@@ -297,7 +297,7 @@ export default function DirectorProfile() {
     // ----------teacher update operation---------------
     const handletShow = async (t) => {
         setShow(true);
-        let tchr = await fetch('https://school-backend-wz4q.onrender.com/director/getoneteacher', {
+        let tchr = await fetch('http://localhost:8050/director/getoneteacher', {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: t })
@@ -309,7 +309,7 @@ export default function DirectorProfile() {
     const handletUpdate = async (stdupdate) => {
         setShow(false);
         let Email = stdupdate.email;
-        let updatedstd = await fetch("https://school-backend-wz4q.onrender.com/director/updateteacher", {
+        let updatedstd = await fetch("http://localhost:8050/director/updateteacher", {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ Email, tName, tEmail, tMobile, tFatherName, tSubject, tGender, tAddress, tSalary })
@@ -321,7 +321,7 @@ export default function DirectorProfile() {
     }
 
     const deleteStudent = async (email) => {
-        let status = await fetch('https://school-backend-wz4q.onrender.com/director/removestudent', {
+        let status = await fetch('http://localhost:8050/director/removestudent', {
             method: "DELETE",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: email })
@@ -349,6 +349,7 @@ export default function DirectorProfile() {
 
                 <button className="btn btn-primary logout_btn" onClick={logout}>Log out</button>
             </div>
+
             <div className="dfdr jcac mt-4 director_body">
                 <Accordion className="director_acordian bg-dark" defaultActiveKey={['1']} alwaysOpen>
                     {/*---------- Teacher part---------- */}
@@ -833,9 +834,9 @@ export default function DirectorProfile() {
             {students.length > 0 ? <div className="list_view mb-3">
                 <ol>
                     <h4 className="text-center mb-3 bottom_border">All Students of School (Total: {students.length})
-                    <svg xmlns="http://www.w3.org/2000/svg" onClick={()=>setStudents([])} style={{marginLeft:'10vw'}} width="25" height="25" fill="currentColor" className="mb-2 bi bi-x-square-fill" viewBox="0 0 16 16">
-  <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708"/>
-</svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" onClick={() => setStudents([])} style={{ marginLeft: '10vw' }} width="25" height="25" fill="currentColor" className="mb-2 bi bi-x-square-fill" viewBox="0 0 16 16">
+                            <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708" />
+                        </svg>
                     </h4>
                     {
                         students.map((student) => (
@@ -998,9 +999,9 @@ export default function DirectorProfile() {
             {/* filterer student class wise */}
             {classSt.length > 0 ? <div className="list_view mb-3">
                 <h4 className="text-center mb-3 text-white bottom_border">All Students of class: {classSt[0].standard}
-                <svg xmlns="http://www.w3.org/2000/svg" onClick={()=>setClassSt([])} style={{marginLeft:'10vw'}} width="25" height="25" fill="currentColor" className="mb-2 bi bi-x-square-fill" viewBox="0 0 16 16">
-  <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708"/>
-</svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" onClick={() => setClassSt([])} style={{ marginLeft: '10vw' }} width="25" height="25" fill="currentColor" className="mb-2 bi bi-x-square-fill" viewBox="0 0 16 16">
+                        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708" />
+                    </svg>
                 </h4>
                 <ol>
                     {
@@ -1160,9 +1161,9 @@ export default function DirectorProfile() {
             {/* -----setudent search result--------------- */}
             {searchedStudent.length > 0 ? <div className="list_view mt-2 mb-3">
                 <h5 className="text-center mb-3 text-white bottom_border">Search result (Total matched names found: {searchedStudent.length})
-                <svg xmlns="http://www.w3.org/2000/svg" onClick={()=>setSearchedStudent([])} style={{marginLeft:'10vw'}} width="25" height="25" fill="currentColor" className="mb-2 bi bi-x-square-fill" viewBox="0 0 16 16">
-  <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708"/>
-</svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" onClick={() => setSearchedStudent([])} style={{ marginLeft: '10vw' }} width="25" height="25" fill="currentColor" className="mb-2 bi bi-x-square-fill" viewBox="0 0 16 16">
+                        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708" />
+                    </svg>
                 </h5>
                 <ol>
                     {
@@ -1323,9 +1324,9 @@ export default function DirectorProfile() {
             {/* ----------students for attendence---------- */}
             {studentArray.length > 0 ? <div id="attendance" className="list_view mt-2 mb-3">
                 <h5 className="text-center mb-3 text-white bottom_border">Attendance For class:  {studentArray[0].standard}
-                <svg xmlns="http://www.w3.org/2000/svg" onClick={()=>setStudentArray([])} style={{marginLeft:'10vw'}} width="25" height="25" fill="currentColor" className="mb-2 bi bi-x-square-fill" viewBox="0 0 16 16">
-  <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708"/>
-</svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" onClick={() => setStudentArray([])} style={{ marginLeft: '10vw' }} width="25" height="25" fill="currentColor" className="mb-2 bi bi-x-square-fill" viewBox="0 0 16 16">
+                        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708" />
+                    </svg>
                 </h5>
                 <ol className="dfdc jcac">
                     {
@@ -1356,13 +1357,14 @@ export default function DirectorProfile() {
                     {showButton ? <button className="btn btn-primary" onClick={submitAttendance}>Submit Attendence</button> : null}
                 </ol>
             </div> : null}
+
             {/* present student list */}
             {cwps.length > 0 ? <div className="list_view mt-2 mt-2 mb-2">
-                <h3 className="text-white text-center mt-2 mb-4 bottom_border">Present student of class: {ClassOfAttendance}  
-                <svg xmlns="http://www.w3.org/2000/svg" onClick={()=>setCwps([])} style={{marginLeft:'10vw'}} width="25" height="25" fill="currentColor" className="mb-2 bi bi-x-square-fill" viewBox="0 0 16 16">
-  <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708"/>
-</svg>
-                 </h3>
+                <h3 className="text-white text-center mt-2 mb-4 bottom_border">Present student of class: {ClassOfAttendance}
+                    <svg xmlns="http://www.w3.org/2000/svg" onClick={() => setCwps([])} style={{ marginLeft: '10vw' }} width="25" height="25" fill="currentColor" className="mb-2 bi bi-x-square-fill" viewBox="0 0 16 16">
+                        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708" />
+                    </svg>
+                </h3>
                 <ol className="dfdc jcac ">
                     {
                         cwps.map((s) => (
@@ -1377,6 +1379,11 @@ export default function DirectorProfile() {
                     }
                 </ol>
             </div> : null}
+
+
+
+
+
         </>
     )
 }
